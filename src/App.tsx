@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { categories, Category, Instrument } from './data';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
 import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -407,7 +407,7 @@ export default function App() {
               Geef aan welke instrumenten u hanteert en of actie vereist is (evt. door wie en wanneer).<br />
               Geef per categorie uw vertrouwen aan en voeg evt. een opmerking toe.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 w-full">
               <div className="flex items-center gap-2">
                 <input 
                   type="checkbox" 
@@ -449,10 +449,10 @@ export default function App() {
                           <button
                             key={rating}
                             onClick={() => handleConfidenceChange(category.id, rating)}
-                            className="p-1 transition-all duration-200 hover:scale-110 focus:outline-none"
+                            className="p-1 transition-all duration-200 hover:scale-125 focus:outline-none group"
                           >
                             <Star 
-                              className={`w-6 h-6 ${isSelected ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`} 
+                              className={`w-6 h-6 transition-colors duration-200 ${isSelected ? 'fill-amber-400 text-amber-500 group-hover:fill-amber-500 group-hover:text-amber-600' : 'fill-transparent text-slate-300 group-hover:text-amber-300 group-hover:fill-amber-100'}`} 
                             />
                           </button>
                         );
@@ -691,6 +691,7 @@ export default function App() {
                       />
                       <YAxis domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fill: '#475569' }} />
                       <Tooltip cursor={{fill: '#f8fafc'}} formatter={(value) => [`${value}%`, 'Vertrouwen']} />
+                      <ReferenceLine y={Math.round((avgConfidence / 5) * 100) || 0} stroke="#94a3b8" strokeDasharray="3 3" strokeWidth={1} />
                       <Bar dataKey="Vertrouwen" radius={[4, 4, 0, 0]} isAnimationActive={false} onClick={(data) => scrollToCategory(data.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
                         {barData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -828,9 +829,9 @@ export default function App() {
             href="https://e-xamens.nl/februari-2026-01/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+            className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
           >
-            e-xamens.nl/februari-2026-01/
+            Examens - Tijdschrift voor de toetspraktijk, feb. 2026
           </a>
         </p>
       </footer>
