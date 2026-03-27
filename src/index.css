@@ -15,6 +15,26 @@
     background-color: white !important;
   }
 
+  /* Forceer de pagina om bij het begin te beginnen */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Zorg dat de container waarin je app zit niet scrollbaar is */
+  #root, .app-container {
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* Verberg de knoppen die 'fixed' in beeld staan */
+  .sticky, .fixed {
+    position: static !important;
+    display: none !important; 
+  }
+
   /* Voorkom afsnijden */
   table, tr, .recharts-wrapper, .bg-white.rounded-2xl, .bg-white.rounded-xl, li, .print-break-avoid {
     break-inside: avoid !important;
@@ -53,6 +73,6 @@
   }
   
   @page {
-    margin: 2cm;
+    margin: 1cm;
   }
 }
