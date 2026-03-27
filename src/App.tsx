@@ -428,7 +428,7 @@ export default function App() {
                   />
                   <div className="hidden absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-6 text-center">
                     <Info className="w-12 h-12 mb-4 opacity-50" />
-                    <p>Plaats de afbeelding <strong>vertrouwensboom.png</strong> in de public folder van de app om deze hier weer te geven.</p>
+                    <img src="/vertrouwensboom.png" alt="Vertrouwensboom" className="w-full h-auto max-w-2xl mx-auto rounded-lg shadow-md" />
                   </div>
                 </div>
               </div>
