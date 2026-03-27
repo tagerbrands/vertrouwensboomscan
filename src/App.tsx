@@ -73,9 +73,7 @@ export default function App() {
     setCheckedDoeIk(prev => {
       const newState = { ...prev, [id]: !prev[id] };
       if (newState[id]) {
-        setCheckedVergtActie(v => ({ ...v, [id]: false }));
         setCheckedNietNodig(n => ({ ...n, [id]: false }));
-        setAgendaOrder(order => order.filter(itemId => itemId !== id));
       }
       return newState;
     });
@@ -85,7 +83,6 @@ export default function App() {
     setCheckedVergtActie(prev => {
       const newState = { ...prev, [id]: !prev[id] };
       if (newState[id]) {
-        setCheckedDoeIk(d => ({ ...d, [id]: false }));
         setCheckedNietNodig(n => ({ ...n, [id]: false }));
         if (!agendaOrder.includes(id)) {
           setAgendaOrder([...agendaOrder, id]);
