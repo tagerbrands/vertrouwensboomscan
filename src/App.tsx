@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import html2canvas from 'html2canvas';
 import { categories, Category, Instrument } from './data';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
 import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare } from 'lucide-react';
@@ -49,24 +50,268 @@ export default function App() {
     }
   };
 
-  const handlePrintAll = () => {
-    window.print();
-  };
+  const handleGenerateReport = async () => {
+    // Capture charts
+    const spiderEl = document.getElementById('spider-chart-container');
+    const barEl = document.getElementById('bar-chart-container');
+    
+    let spiderImg = '';
+    let barImg = '';
 
-  const handlePrintSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
-    if (!section) return;
+    try {
+      if (spiderEl) {
+        const canvas = await html2canvas(spiderEl, { scale: 2 });
+        spiderImg = canvas.toDataURL('image/png');
+      }
+      if (barEl) {
+        const canvas = await html2canvas(barEl, { scale: 2 });
+        barImg = canvas.toDataURL('image/png');
+      }
+    } catch (e) {
+      console.error("Error capturing charts", e);
+    }
 
-    document.body.classList.add('printing-specific-section');
-    section.classList.add('print-active');
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Borgingsrapport</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @media print {
+      @page { margin: 1.5cm; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page-break { break-before: page; }
+      .avoid-break { break-inside: avoid; }
+      
+      /* Forceer de pagina om bij het begin te beginnen */
+      html, body {
+        height: auto !important;
+        overflow: visible !important;
+        position: static !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <!-- Page 1: Cover -->
+  <div class="h-screen flex flex-col items-center justify-center relative p-8 text-center">
+    <h1 class="text-5xl font-extrabold text-slate-900 mb-8">Borging a.d.h.v. De Vertrouwensboom</h1>
+    <img src="/vertrouwensboom.png" alt="De Vertrouwensboom" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
+    <h2 class="text-2xl font-medium text-slate-600">Een zelfscan van het borgende instrumentarium</h2>
+    <div class="absolute bottom-12 text-slate-400 font-medium">${new Date().toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+  </div>
 
-    // Small delay to let CSS apply before opening print dialog
-    setTimeout(() => {
-      window.print();
-      // Cleanup after print dialog closes
-      document.body.classList.remove('printing-specific-section');
-      section.classList.remove('print-active');
-    }, 100);
+  <!-- Page 2: Theorie -->
+  <div class="page-break p-8">
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Uitgangspunten van De Vertrouwensboom</h2>
+    <div class="prose prose-slate max-w-none">
+      <p class="mb-4">De Vertrouwensboom is een metafoor voor het bouwen en onderhouden van vertrouwen binnen en buiten de organisatie. Het model gaat ervan uit dat vertrouwen moet groeien en geworteld moet zijn in stevige fundamenten.</p>
+      <p class="mb-4"><strong>Wortels (Fundament):</strong> Dit zijn de kernwaarden, de visie en de missie van de organisatie. Zonder sterke wortels kan de boom niet groeien of stormen doorstaan.</p>
+      <p class="mb-4"><strong>Stam (Organisatie):</strong> De structuur, processen en leiderschap die de organisatie overeind houden. Een stevige stam zorgt voor stabiliteit en richting.</p>
+      <p class="mb-4"><strong>Takken (Verbinding):</strong> De relaties met stakeholders, zowel intern (medewerkers) als extern (klanten, partners, maatschappij). Vertrouwen reikt uit naar de omgeving.</p>
+      <p class="mb-4"><strong>Bladeren (Zichtbaarheid):</strong> De dagelijkse acties, communicatie en transparantie. Dit is wat de buitenwereld ziet en ervaart.</p>
+      <h3 class="text-xl font-bold mt-6 mb-3">Borging is...</h3>
+      <ul class="list-disc pl-5 space-y-2">
+        <li>Het structureel inbedden van afspraken, processen en gedrag.</li>
+        <li>Zorgen dat wat we beloven, ook daadwerkelijk gebeurt en blijft gebeuren.</li>
+        <li>Niet eenmalig, maar een continu proces van evalueren en bijsturen.</li>
+        <li>Essentieel voor het behouden en versterken van vertrouwen.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Page 3: Resultaten -->
+  <div class="page-break p-8">
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Totaalbeeld Borging</h2>
+    <div class="grid grid-cols-3 gap-6 mb-8">
+      <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 text-center">
+        <div class="text-5xl font-black text-emerald-600">${totalDoeIk} <span class="text-2xl text-emerald-400">/ ${totalInstruments}</span></div>
+        <div class="text-sm font-bold text-emerald-700 uppercase tracking-wider mt-2">Ingezet ("Doen we")</div>
+      </div>
+      <div class="bg-amber-50 p-6 rounded-xl border border-amber-200 text-center">
+        <div class="text-5xl font-black text-amber-600">${totalVergtActie}</div>
+        <div class="text-sm font-bold text-amber-700 uppercase tracking-wider mt-2">Vergt Actie</div>
+      </div>
+      <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
+        <div class="text-5xl font-black text-slate-600">${totalNietNodig}</div>
+        <div class="text-sm font-bold text-slate-700 uppercase tracking-wider mt-2">Niet Nodig</div>
+      </div>
+    </div>
+    
+    <h3 class="text-xl font-bold text-slate-800 mb-4">Borgingsgraad per Categorie</h3>
+    <div class="space-y-4">
+      ${categories.map(category => {
+        const catInstruments = category.elements.flatMap(e => e.instruments);
+        const catTotal = catInstruments.length;
+        const catDoeIk = catInstruments.filter(inst => checkedDoeIk[inst.id]).length;
+        const percentage = Math.round((catDoeIk / catTotal) * 100) || 0;
+        return `
+          <div class="bg-white p-4 rounded-lg border border-slate-200 avoid-break">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold text-slate-800">${category.name}</span>
+              <span class="font-bold ${percentage >= 75 ? 'text-emerald-600' : percentage >= 50 ? 'text-amber-500' : 'text-rose-500'}">${percentage}% (${catDoeIk}/${catTotal})</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5">
+              <div class="h-2.5 rounded-full ${percentage >= 75 ? 'bg-emerald-500' : percentage >= 50 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${percentage}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- Page 4: Visuals -->
+  <div class="page-break p-8">
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Visuele Weergave</h2>
+    <div class="space-y-8">
+      ${spiderImg ? `
+      <div class="avoid-break">
+        <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">Inzet van Instrumenten (%)</h3>
+        <div class="flex justify-center"><img src="${spiderImg}" alt="Spider Chart" style="max-width: 100%; height: auto;" /></div>
+      </div>` : ''}
+      
+      ${barImg ? `
+      <div class="avoid-break mt-8">
+        <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">Mate van vertrouwen (%)</h3>
+        <div class="flex justify-center"><img src="${barImg}" alt="Bar Chart" style="max-width: 100%; height: auto;" /></div>
+      </div>` : ''}
+    </div>
+  </div>
+
+  <!-- Page 5: Agenda & Punten -->
+  <div class="page-break p-8">
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Borgingsagenda & Aandachtspunten</h2>
+    
+    <div class="mb-8">
+      <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Borgingsagenda (Vergt Actie)
+      </h3>
+      ${borgingsagenda.length > 0 ? `
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="p-3 border border-slate-200 font-bold text-sm">Categorie</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm">Instrument</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm w-32">Eigenaar</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm w-32">Deadline</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${borgingsagenda.map(item => `
+            <tr class="avoid-break">
+              <td class="p-3 border border-slate-200 text-sm align-top"><span class="font-semibold ${item.category.textColorClass}">${item.category.name}</span><br/><span class="text-xs text-slate-500">${item.element.name}</span></td>
+              <td class="p-3 border border-slate-200 text-sm align-top">${item.instrument.text}</td>
+              <td class="p-3 border border-slate-200 text-sm align-top">${actionDetails[item.instrument.id]?.owner || ''}</td>
+              <td class="p-3 border border-slate-200 text-sm align-top">${actionDetails[item.instrument.id]?.deadline || ''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      ` : '<p class="text-slate-500 italic">Geen actiepunten geselecteerd.</p>'}
+    </div>
+
+    <div>
+      <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        Aandachtspunten (Niet ingezet)
+      </h3>
+      ${aandachtspunten.length > 0 ? `
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="p-3 border border-slate-200 font-bold text-sm w-1/4">Categorie</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm">Instrument</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${aandachtspunten.map(item => `
+            <tr class="avoid-break">
+              <td class="p-3 border border-slate-200 text-sm align-top"><span class="font-semibold ${item.category.textColorClass}">${item.category.name}</span><br/><span class="text-xs text-slate-500">${item.element.name}</span></td>
+              <td class="p-3 border border-slate-200 text-sm align-top">${item.instrument.text}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      ` : '<p class="text-slate-500 italic">Geen aandachtspunten. U zet alle instrumenten in!</p>'}
+    </div>
+  </div>
+
+  <!-- Bijlage: Zelfscan -->
+  <div class="page-break p-8">
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Bijlage: Volledige Zelfscan</h2>
+    
+    ${categories.map(category => `
+      <div class="mb-8 avoid-break">
+        <h3 class="text-xl font-bold mb-3 ${category.textColorClass}">${category.name}</h3>
+        <table class="w-full text-left border-collapse mb-4">
+          <thead>
+            <tr class="bg-slate-100">
+              <th class="p-2 border border-slate-200 font-bold text-xs w-1/4">Element</th>
+              <th class="p-2 border border-slate-200 font-bold text-xs w-1/2">Instrument</th>
+              <th class="p-2 border border-slate-200 font-bold text-xs w-1/4 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${category.elements.map(element => 
+              element.instruments.map((instrument, idx) => {
+                const isDoeIk = checkedDoeIk[instrument.id];
+                const isVergtActie = checkedVergtActie[instrument.id];
+                const isNietNodig = checkedNietNodig[instrument.id];
+                
+                let statusHtml = '';
+                if (isNietNodig) statusHtml = '<span class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded font-medium">Niet nodig</span>';
+                else {
+                  if (isDoeIk) statusHtml += '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded font-medium mr-1">Doen we</span>';
+                  if (isVergtActie) statusHtml += '<span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded font-medium">Vergt actie</span>';
+                  if (!isDoeIk && !isVergtActie) statusHtml = '<span class="text-slate-400 text-xs italic">-</span>';
+                }
+
+                return `
+                  <tr>
+                    ${idx === 0 ? `<td class="p-2 border border-slate-200 text-xs align-top font-medium" rowspan="${element.instruments.length}">${element.name}</td>` : ''}
+                    <td class="p-2 border border-slate-200 text-xs align-top ${isNietNodig ? 'line-through text-slate-400' : ''}">${instrument.text}</td>
+                    <td class="p-2 border border-slate-200 text-xs align-top text-center">${statusHtml}</td>
+                  </tr>
+                `;
+              }).join('')
+            ).join('')}
+          </tbody>
+        </table>
+        ${notes[category.id] ? `
+          <div class="bg-yellow-50 p-3 rounded border border-yellow-200 text-sm">
+            <strong>Opmerking:</strong> ${notes[category.id]}
+          </div>
+        ` : ''}
+      </div>
+    `).join('')}
+  </div>
+
+  <script>
+    window.onload = () => {
+      setTimeout(() => {
+        window.print();
+        window.onafterprint = () => {
+          window.close();
+        };
+      }, 500); // Give it a little time to render everything
+    };
+  </script>
+</body>
+</html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+    } else {
+      alert("Pop-up blocker prevented the report from opening. Please allow pop-ups for this site.");
+    }
   };
 
   const handleDoeIkChange = (id: string) => {
@@ -311,30 +556,13 @@ export default function App() {
               <a href="#agenda" className="text-sm font-medium text-slate-600 hover:text-slate-900">Agenda</a>
             </nav>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 print:hidden">
-              <span className="text-sm font-medium text-slate-600 flex items-center gap-1">
+              <button 
+                onClick={handleGenerateReport}
+                className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors whitespace-nowrap"
+              >
                 <Download className="w-4 h-4" />
-                Exporteer:
-              </span>
-              <div className="flex bg-slate-100 rounded-lg p-1 border border-slate-200">
-                <button 
-                  onClick={handlePrintAll}
-                  className="px-3 py-1 rounded-md text-xs font-medium text-slate-700 hover:bg-white hover:shadow-sm transition-all"
-                >
-                  Alles
-                </button>
-                <button 
-                  onClick={() => handlePrintSection('resultaten')}
-                  className="px-3 py-1 rounded-md text-xs font-medium text-slate-700 hover:bg-white hover:shadow-sm transition-all"
-                >
-                  Resultaten
-                </button>
-                <button 
-                  onClick={() => handlePrintSection('agenda')}
-                  className="px-3 py-1 rounded-md text-xs font-medium text-slate-700 hover:bg-white hover:shadow-sm transition-all"
-                >
-                  Agenda
-                </button>
-              </div>
+                Exporteer Rapport
+              </button>
             </div>
           </div>
         </div>
@@ -661,7 +889,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:break-before-page print:break-inside-avoid">
               {/* Spider Chart */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+              <div id="spider-chart-container" className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
                 <h3 className="text-lg font-bold text-slate-800 mb-6 text-center">Inzet van Instrumenten (%)</h3>
                 <div className="flex-1 min-h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -677,7 +905,7 @@ export default function App() {
               </div>
 
               {/* Bar Chart */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+              <div id="bar-chart-container" className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
                 <h3 className="text-lg font-bold text-slate-800 mb-6 text-center">Mate van vertrouwen (%)</h3>
                 <div className="flex-1 min-h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
