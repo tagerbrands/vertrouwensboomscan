@@ -98,7 +98,7 @@ export const categories: Category[] = [
         ]
       },
       {
-        name: "Tussentijdse evaluatie (Intermediate stake)",
+        name: "Tussentijdse evaluatie (Medium stake)",
         description: "Feedbackmomenten die halverwege het leertraject inzicht geven in de voortgang richting de LUKs. Hierbij wordt het portfolio holistisch bekeken.",
         instruments: [
           { id: "i12", text: "Verifieer of de status van deze beoordeling in relatie tot de beslissing transparant is voor alle actoren." },

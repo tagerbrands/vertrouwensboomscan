@@ -18,6 +18,7 @@ const loadState = <T,>(key: string, defaultValue: T): T => {
 export default function App() {
   const [checkedDoeIk, setCheckedDoeIk] = useState<Record<string, boolean>>(() => loadState('borging_doeIk', {}));
   const [checkedVergtActie, setCheckedVergtActie] = useState<Record<string, boolean>>(() => loadState('borging_vergtActie', {}));
+  const [checkedNietNodig, setCheckedNietNodig] = useState<Record<string, boolean>>(() => loadState('borging_nietNodig', {}));
   const [confidence, setConfidence] = useState<Record<string, number>>(() => loadState('borging_confidence', {}));
   const [agendaOrder, setAgendaOrder] = useState<string[]>(() => loadState('borging_agendaOrder', []));
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -29,6 +30,7 @@ export default function App() {
   // Save state to localStorage whenever it changes
   useEffect(() => { localStorage.setItem('borging_doeIk', JSON.stringify(checkedDoeIk)); }, [checkedDoeIk]);
   useEffect(() => { localStorage.setItem('borging_vergtActie', JSON.stringify(checkedVergtActie)); }, [checkedVergtActie]);
+  useEffect(() => { localStorage.setItem('borging_nietNodig', JSON.stringify(checkedNietNodig)); }, [checkedNietNodig]);
   useEffect(() => { localStorage.setItem('borging_confidence', JSON.stringify(confidence)); }, [confidence]);
   useEffect(() => { localStorage.setItem('borging_agendaOrder', JSON.stringify(agendaOrder)); }, [agendaOrder]);
   useEffect(() => { localStorage.setItem('borging_actionDetails', JSON.stringify(actionDetails)); }, [actionDetails]);
@@ -111,17 +113,40 @@ export default function App() {
   };
 
   const handleDoeIkChange = (id: string) => {
-    setCheckedDoeIk(prev => ({ ...prev, [id]: !prev[id] }));
+    setCheckedDoeIk(prev => {
+      const newState = { ...prev, [id]: !prev[id] };
+      if (newState[id]) {
+        setCheckedVergtActie(v => ({ ...v, [id]: false }));
+        setCheckedNietNodig(n => ({ ...n, [id]: false }));
+        setAgendaOrder(order => order.filter(itemId => itemId !== id));
+      }
+      return newState;
+    });
   };
 
   const handleVergtActieChange = (id: string) => {
     setCheckedVergtActie(prev => {
       const newState = { ...prev, [id]: !prev[id] };
-      // Update agenda order if newly checked
-      if (newState[id] && !agendaOrder.includes(id)) {
-        setAgendaOrder([...agendaOrder, id]);
-      } else if (!newState[id]) {
+      if (newState[id]) {
+        setCheckedDoeIk(d => ({ ...d, [id]: false }));
+        setCheckedNietNodig(n => ({ ...n, [id]: false }));
+        if (!agendaOrder.includes(id)) {
+          setAgendaOrder([...agendaOrder, id]);
+        }
+      } else {
         setAgendaOrder(agendaOrder.filter(itemId => itemId !== id));
+      }
+      return newState;
+    });
+  };
+
+  const handleNietNodigChange = (id: string) => {
+    setCheckedNietNodig(prev => {
+      const newState = { ...prev, [id]: !prev[id] };
+      if (newState[id]) {
+        setCheckedDoeIk(d => ({ ...d, [id]: false }));
+        setCheckedVergtActie(v => ({ ...v, [id]: false }));
+        setAgendaOrder(order => order.filter(itemId => itemId !== id));
       }
       return newState;
     });
@@ -180,14 +205,14 @@ export default function App() {
     categories.forEach(cat => {
       cat.elements.forEach(el => {
         el.instruments.forEach(inst => {
-          if (!checkedDoeIk[inst.id]) {
+          if (!checkedDoeIk[inst.id] && !checkedNietNodig[inst.id]) {
             points.push({ category: cat, element: el, instrument: inst });
           }
         });
       });
     });
     return points;
-  }, [checkedDoeIk]);
+  }, [checkedDoeIk, checkedNietNodig]);
 
   const borgingsagenda = useMemo(() => {
     const items: { category: Category; element: any; instrument: Instrument }[] = [];
@@ -252,8 +277,10 @@ export default function App() {
       let checked = 0;
       cat.elements.forEach(el => {
         el.instruments.forEach(inst => {
-          total++;
-          if (checkedDoeIk[inst.id]) checked++;
+          if (!checkedNietNodig[inst.id]) {
+            total++;
+            if (checkedDoeIk[inst.id]) checked++;
+          }
         });
       });
       return {
@@ -262,7 +289,7 @@ export default function App() {
         fullMark: 100,
       };
     });
-  }, [checkedDoeIk]);
+  }, [checkedDoeIk, checkedNietNodig]);
 
   const barData = useMemo(() => {
     return categories.map(cat => ({
@@ -273,7 +300,7 @@ export default function App() {
     }));
   }, [confidence]);
 
-  const totalInstruments = categories.reduce((acc, cat) => acc + cat.elements.reduce((eAcc, el) => eAcc + el.instruments.length, 0), 0);
+  const totalInstruments = categories.reduce((acc, cat) => acc + cat.elements.reduce((eAcc, el) => eAcc + el.instruments.filter(i => !checkedNietNodig[i.id]).length, 0), 0);
   const totalDoeIk = Object.values(checkedDoeIk).filter(Boolean).length;
   const totalVergtActie = Object.values(checkedVergtActie).filter(Boolean).length;
   
@@ -382,7 +409,7 @@ export default function App() {
                   <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center w-full">De Vertrouwensboom</h3>
                   <div className="relative w-full aspect-square max-w-md mx-auto overflow-hidden rounded-lg shadow-md bg-white flex items-center justify-center mt-auto mb-auto">
                     <img 
-                      src="./vertrouwensboom.png" 
+                      src="/vertrouwensboom.png" 
                       alt="Vertrouwensboom" 
                       className="object-contain w-full h-full"
                     />
@@ -474,20 +501,23 @@ export default function App() {
                         {element.instruments.map(instrument => {
                           const isVergtActie = !!checkedVergtActie[instrument.id];
                           const isDoeIk = !!checkedDoeIk[instrument.id];
+                          const isNietNodig = !!checkedNietNodig[instrument.id];
                           
                           const itemBgClass = isVergtActie 
                             ? 'bg-amber-50 border-amber-300 hover:border-amber-500 hover:shadow-sm' 
                             : isDoeIk 
                               ? 'bg-emerald-50 border-emerald-300 hover:border-emerald-500 hover:shadow-sm' 
-                              : 'bg-white/60 border-slate-200 hover:bg-white/90 hover:border-slate-400 hover:shadow-sm';
+                              : isNietNodig
+                                ? 'bg-slate-100 border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300'
+                                : 'bg-white/60 border-slate-200 hover:bg-white/90 hover:border-slate-400 hover:shadow-sm';
 
                           return (
                             <div key={instrument.id} className={`flex flex-col gap-0 rounded-lg border transition-all duration-200 ${itemBgClass}`}>
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3">
-                                <div className="flex-1 text-sm text-slate-800 leading-snug">
+                                <div className={`flex-1 text-sm leading-snug ${isNietNodig ? 'text-slate-500 line-through' : 'text-slate-800'}`}>
                                   {instrument.text}
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                                   <button
                                     onClick={() => handleDoeIkChange(instrument.id)}
                                     className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
@@ -507,6 +537,16 @@ export default function App() {
                                     }`}
                                   >
                                     Vergt actie
+                                  </button>
+                                  <button
+                                    onClick={() => handleNietNodigChange(instrument.id)}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
+                                      isNietNodig 
+                                        ? 'bg-slate-500 text-white border-slate-600 shadow-sm' 
+                                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    Niet nodig
                                   </button>
                                 </div>
                               </div>
@@ -613,10 +653,10 @@ export default function App() {
                 <h4 className="text-lg font-bold text-slate-800 border-b border-slate-200 pb-2">Borgingsgraad per Categorie</h4>
                 <div className="flex flex-col gap-2">
                   {categories.map(category => {
-                    const catInstruments = category.elements.flatMap(e => e.instruments);
+                    const catInstruments = category.elements.flatMap(e => e.instruments).filter(inst => !checkedNietNodig[inst.id]);
                     const catTotal = catInstruments.length;
                     const catDoeIk = catInstruments.filter(inst => checkedDoeIk[inst.id]).length;
-                    const catGraad = Math.round((catDoeIk / catTotal) * 100) || 0;
+                    const catGraad = catTotal > 0 ? Math.round((catDoeIk / catTotal) * 100) : 0;
                     const verbeterActies = catInstruments.filter(inst => !checkedDoeIk[inst.id]);
                     const hue = Math.round((catGraad / 100) * 120);
                     const barColor = `hsl(${hue}, 80%, 45%)`;
