@@ -105,13 +105,20 @@ export default function App() {
     let spiderImg = '';
     let barImg = '';
 
+    const captureWithTimeout = (el: HTMLElement, options: any, timeoutMs: number) => {
+      return Promise.race([
+        html2canvas(el, options),
+        new Promise<HTMLCanvasElement>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs))
+      ]);
+    };
+
     try {
       if (spiderEl) {
-        const canvas = await html2canvas(spiderEl, { scale: 2 });
+        const canvas = await captureWithTimeout(spiderEl, { scale: 2, useCORS: true, logging: false }, 3000);
         spiderImg = canvas.toDataURL('image/png');
       }
       if (barEl) {
-        const canvas = await html2canvas(barEl, { scale: 2 });
+        const canvas = await captureWithTimeout(barEl, { scale: 2, useCORS: true, logging: false }, 3000);
         barImg = canvas.toDataURL('image/png');
       }
     } catch (e) {
@@ -343,14 +350,12 @@ export default function App() {
   ` : ''}
 
   <script>
-    window.onload = () => {
-      setTimeout(() => {
-        window.print();
-        window.onafterprint = () => {
-          window.close();
-        };
-      }, 500); // Give it a little time to render everything
-    };
+    setTimeout(() => {
+      window.print();
+      window.onafterprint = () => {
+        window.close();
+      };
+    }, 1000); // Give it a little time to render everything
   </script>
 </body>
 </html>
@@ -611,21 +616,25 @@ export default function App() {
               <a href="#resultaten" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Resultaten</a>
               <a href="#agenda" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Agenda</a>
             </nav>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 print:hidden">
-              <button 
-                onClick={() => handleGenerateReport('results')}
-                className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"
-              >
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 print:hidden bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-300 px-2 flex items-center gap-1">
                 <Download className="w-4 h-4" />
-                Resultaten & Agenda
-              </button>
-              <button 
-                onClick={() => handleGenerateReport('full')}
-                className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors whitespace-nowrap"
-              >
-                <Download className="w-4 h-4" />
-                Compleet Rapport
-              </button>
+                Exporteer
+              </span>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => handleGenerateReport('full')}
+                  className="bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
+                >
+                  Alles
+                </button>
+                <button 
+                  onClick={() => handleGenerateReport('results')}
+                  className="bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
+                >
+                  Resultaten
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -725,9 +734,9 @@ export default function App() {
 
           <div className="space-y-4">
             {categories.map(category => (
-              <div key={category.id} id={`category-${category.id}`} className={`rounded-xl overflow-hidden border ${category.borderColorClass} dark:border-slate-700 shadow-sm ${category.colorClass} dark:bg-slate-800 bg-opacity-20 dark:bg-opacity-100 print-break-avoid scroll-mt-24 transition-colors`}>
-                <div className={`${category.colorClass} dark:bg-slate-700/50 px-4 py-2 border-b ${category.borderColorClass} dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-2 transition-colors`}>
-                  <h3 className={`text-lg font-bold ${category.textColorClass} dark:text-slate-100`}>{category.name}</h3>
+              <div key={category.id} id={`category-${category.id}`} className={`rounded-xl overflow-hidden border ${category.borderColorClass} shadow-sm ${category.containerColorClass} print-break-avoid scroll-mt-24 transition-colors`}>
+                <div className={`${category.colorClass} px-4 py-2 border-b ${category.borderColorClass} flex flex-col md:flex-row md:items-center justify-between gap-2 transition-colors`}>
+                  <h3 className={`text-lg font-bold ${category.textColorClass}`}>{category.name}</h3>
                   
                   <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg backdrop-blur-sm">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Vertrouwen:</span>
@@ -918,7 +927,7 @@ export default function App() {
                     const barColor = `hsl(${hue}, 80%, 45%)`;
 
                     return (
-                      <div key={category.id} className={`${category.colorClass} dark:bg-slate-800/50 bg-opacity-40 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-colors`}>
+                      <div key={category.id} className={`${category.colorClass} p-2.5 rounded-lg border ${category.borderColorClass} shadow-sm transition-colors`}>
                         <div className="flex items-center gap-3">
                           {catGraad === 100 ? (
                             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
@@ -960,11 +969,14 @@ export default function App() {
                 <div className="flex-1 min-h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid stroke="#e2e8f0" />
+                      <PolarGrid stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
                       <PolarAngleAxis dataKey="subject" tick={<CustomTick />} />
                       <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                       <Radar name="Inzet (%)" dataKey="A" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} isAnimationActive={false} dot={<CustomDot />} />
-                      <Tooltip formatter={(value) => [`${value}%`, 'Inzet']} />
+                      <Tooltip 
+                        formatter={(value) => [`${value}%`, 'Inzet']} 
+                        contentStyle={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', color: isDarkMode ? '#f8fafc' : '#0f172a', border: isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0', borderRadius: '8px' }}
+                      />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -976,18 +988,22 @@ export default function App() {
                 <div className="flex-1 min-h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
                       <XAxis 
                         dataKey="name" 
                         angle={-45} 
                         textAnchor="end" 
                         height={80} 
                         interval={0} 
-                        tick={{ fill: '#475569', fontSize: 11 }} 
+                        tick={{ fill: isDarkMode ? '#94a3b8' : '#475569', fontSize: 11 }} 
                       />
-                      <YAxis domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fill: '#475569' }} />
-                      <Tooltip cursor={{fill: '#f8fafc'}} formatter={(value) => [`${value}%`, 'Vertrouwen']} />
-                      <ReferenceLine y={Math.round((avgConfidence / 5) * 100) || 0} stroke="#94a3b8" strokeDasharray="3 3" strokeWidth={1} />
+                      <YAxis domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} />
+                      <Tooltip 
+                        cursor={{fill: isDarkMode ? '#334155' : '#f8fafc'}} 
+                        formatter={(value) => [`${value}%`, 'Vertrouwen']} 
+                        contentStyle={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', color: isDarkMode ? '#f8fafc' : '#0f172a', border: isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0', borderRadius: '8px' }}
+                      />
+                      <ReferenceLine y={Math.round((avgConfidence / 5) * 100) || 0} stroke={isDarkMode ? '#475569' : '#94a3b8'} strokeDasharray="3 3" strokeWidth={1} />
                       <Bar dataKey="Vertrouwen" radius={[4, 4, 0, 0]} isAnimationActive={false} onClick={(data) => scrollToCategory(data.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
                         {barData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -1043,7 +1059,7 @@ export default function App() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${item.category.colorClass} ${item.category.textColorClass} dark:text-slate-100`}>
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${item.category.colorClass} ${item.category.textColorClass}`}>
                               {item.category.name}
                             </span>
                             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.element.name}</span>
@@ -1089,7 +1105,7 @@ export default function App() {
                     {aandachtspunten.map((item, idx) => (
                       <li key={`aandacht-${idx}`} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className={`text-xs font-semibold px-2 py-1 rounded-md ${item.category.colorClass} ${item.category.textColorClass} dark:text-slate-100`}>
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-md ${item.category.colorClass} ${item.category.textColorClass}`}>
                             {item.category.name}
                           </span>
                           <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.element.name}</span>

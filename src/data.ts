@@ -13,6 +13,7 @@ export interface Category {
   id: string;
   name: string;
   colorClass: string;
+  containerColorClass: string;
   textColorClass: string;
   borderColorClass: string;
   elements: Element[];
@@ -22,9 +23,10 @@ export const categories: Category[] = [
   {
     id: "luk-kwaliteit",
     name: "LUK-kwaliteit",
-    colorClass: "bg-rose-50",
-    textColorClass: "text-rose-700",
-    borderColorClass: "border-rose-200",
+    colorClass: "bg-rose-50 dark:bg-rose-900/40",
+    containerColorClass: "bg-rose-50/30 dark:bg-rose-900/10",
+    textColorClass: "text-rose-700 dark:text-rose-300",
+    borderColorClass: "border-rose-200 dark:border-rose-800/50",
     elements: [
       {
         name: "Formulering",
@@ -45,9 +47,10 @@ export const categories: Category[] = [
   {
     id: "portfoliocriteria",
     name: "Portfoliocriteria",
-    colorClass: "bg-orange-50",
-    textColorClass: "text-orange-700",
-    borderColorClass: "border-orange-200",
+    colorClass: "bg-orange-50 dark:bg-orange-900/40",
+    containerColorClass: "bg-orange-50/30 dark:bg-orange-900/10",
+    textColorClass: "text-orange-700 dark:text-orange-300",
+    borderColorClass: "border-orange-200 dark:border-orange-800/50",
     elements: [
       {
         name: "Ontvankelijkheidscriteria",
@@ -77,9 +80,10 @@ export const categories: Category[] = [
   {
     id: "kaders-procedures",
     name: "Kaders & procedures",
-    colorClass: "bg-amber-50",
-    textColorClass: "text-amber-700",
-    borderColorClass: "border-amber-200",
+    colorClass: "bg-amber-50 dark:bg-amber-900/40",
+    containerColorClass: "bg-amber-50/30 dark:bg-amber-900/10",
+    textColorClass: "text-amber-700 dark:text-amber-300",
+    borderColorClass: "border-amber-200 dark:border-amber-800/50",
     elements: [
       {
         name: "Bewijsmateriaal (Low stake)",
@@ -121,9 +125,10 @@ export const categories: Category[] = [
   {
     id: "organisatie",
     name: "Organisatie",
-    colorClass: "bg-emerald-50",
-    textColorClass: "text-emerald-700",
-    borderColorClass: "border-emerald-200",
+    colorClass: "bg-emerald-50 dark:bg-emerald-900/40",
+    containerColorClass: "bg-emerald-50/30 dark:bg-emerald-900/10",
+    textColorClass: "text-emerald-700 dark:text-emerald-300",
+    borderColorClass: "border-emerald-200 dark:border-emerald-800/50",
     elements: [
       {
         name: "Governance",
@@ -138,9 +143,10 @@ export const categories: Category[] = [
   {
     id: "profiel-examinatoren",
     name: "Profiel examinatoren",
-    colorClass: "bg-blue-50",
-    textColorClass: "text-blue-700",
-    borderColorClass: "border-blue-200",
+    colorClass: "bg-blue-50 dark:bg-blue-900/40",
+    containerColorClass: "bg-blue-50/30 dark:bg-blue-900/10",
+    textColorClass: "text-blue-700 dark:text-blue-300",
+    borderColorClass: "border-blue-200 dark:border-blue-800/50",
     elements: [
       {
         name: "Certificering",
@@ -180,9 +186,10 @@ export const categories: Category[] = [
   {
     id: "digitale-systemen",
     name: "Digitale systemen",
-    colorClass: "bg-purple-50",
-    textColorClass: "text-purple-700",
-    borderColorClass: "border-purple-200",
+    colorClass: "bg-purple-50 dark:bg-purple-900/40",
+    containerColorClass: "bg-purple-50/30 dark:bg-purple-900/10",
+    textColorClass: "text-purple-700 dark:text-purple-300",
+    borderColorClass: "border-purple-200 dark:border-purple-800/50",
     elements: [
       {
         name: "Authenticiteitscheck",
@@ -203,9 +210,10 @@ export const categories: Category[] = [
   {
     id: "fraudebeleid",
     name: "Fraudebeleid",
-    colorClass: "bg-fuchsia-50",
-    textColorClass: "text-fuchsia-700",
-    borderColorClass: "border-fuchsia-200",
+    colorClass: "bg-fuchsia-50 dark:bg-fuchsia-900/40",
+    containerColorClass: "bg-fuchsia-50/30 dark:bg-fuchsia-900/10",
+    textColorClass: "text-fuchsia-700 dark:text-fuchsia-300",
+    borderColorClass: "border-fuchsia-200 dark:border-fuchsia-800/50",
     elements: [
       {
         name: "Informeren, Preventie & Melden",
