@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { categories, Category, Instrument } from './data';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
-import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare, Moon, Sun } from 'lucide-react';
 
 // Helper to load state from localStorage
 const loadState = <T,>(key: string, defaultValue: T): T => {
@@ -50,7 +50,54 @@ export default function App() {
     }
   };
 
-  const handleGenerateReport = async () => {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark') || 
+             window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+
+  const handleGenerateReport = async (reportType: 'full' | 'results') => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert("Pop-up blocker prevented het rapport van openen. Sta pop-ups toe voor deze site.");
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="nl">
+      <head>
+        <meta charset="UTF-8">
+        <title>Rapport wordt gegenereerd...</title>
+        <style>
+          body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f8fafc; color: #334155; }
+          .loader { border: 4px solid #e2e8f0; border-top: 4px solid #0f172a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          .container { text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="loader"></div>
+          <h2>Rapport wordt gegenereerd...</h2>
+          <p>Even geduld aub. Dit kan enkele seconden duren.</p>
+        </div>
+      </body>
+      </html>
+    `);
+
     // Capture charts
     const spiderEl = document.getElementById('spider-chart-container');
     const barEl = document.getElementById('bar-chart-container');
@@ -96,7 +143,8 @@ export default function App() {
     }
   </style>
 </head>
-<body class="bg-white text-slate-800">
+  <body class="bg-white text-slate-800">
+  ${reportType === 'full' ? `
   <!-- Page 1: Cover -->
   <div class="h-screen flex flex-col items-center justify-center relative p-8 text-center">
     <h1 class="text-5xl font-extrabold text-slate-900 mb-8">Borging a.d.h.v. De Vertrouwensboom</h1>
@@ -123,9 +171,10 @@ export default function App() {
       </ul>
     </div>
   </div>
+  ` : ''}
 
   <!-- Page 3: Resultaten -->
-  <div class="page-break p-8">
+  <div class="${reportType === 'full' ? 'page-break' : ''} p-8">
     <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Totaalbeeld Borging</h2>
     <div class="grid grid-cols-3 gap-6 mb-8">
       <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 text-center">
@@ -241,6 +290,7 @@ export default function App() {
     </div>
   </div>
 
+  ${reportType === 'full' ? `
   <!-- Bijlage: Zelfscan -->
   <div class="page-break p-8">
     <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Bijlage: Volledige Zelfscan</h2>
@@ -290,6 +340,7 @@ export default function App() {
       </div>
     `).join('')}
   </div>
+  ` : ''}
 
   <script>
     window.onload = () => {
@@ -305,13 +356,9 @@ export default function App() {
 </html>
     `;
 
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
-    } else {
-      alert("Pop-up blocker prevented the report from opening. Please allow pop-ups for this site.");
-    }
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
   };
 
   const handleDoeIkChange = (id: string) => {
@@ -542,49 +589,65 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans pb-20 transition-colors">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm py-4">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm py-4 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-4">
-          <h1 className="text-2xl font-bold text-slate-800 text-center">Borging a.d.h.v. De Vertrouwensboom</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white text-center">Borging a.d.h.v. De Vertrouwensboom</h1>
           
           <div className="relative flex items-center justify-center w-full">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center print:hidden">
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                title="Wissel Dark Mode"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </div>
             <nav className="hidden md:flex space-x-8 items-center">
-              <a href="#theorie" className="text-sm font-medium text-slate-600 hover:text-slate-900">Theorie</a>
-              <a href="#zelfscan" className="text-sm font-medium text-slate-600 hover:text-slate-900">Zelfscan</a>
-              <a href="#resultaten" className="text-sm font-medium text-slate-600 hover:text-slate-900">Resultaten</a>
-              <a href="#agenda" className="text-sm font-medium text-slate-600 hover:text-slate-900">Agenda</a>
+              <a href="#theorie" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Theorie</a>
+              <a href="#zelfscan" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Zelfscan</a>
+              <a href="#resultaten" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Resultaten</a>
+              <a href="#agenda" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Agenda</a>
             </nav>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 print:hidden">
               <button 
-                onClick={handleGenerateReport}
-                className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors whitespace-nowrap"
+                onClick={() => handleGenerateReport('results')}
+                className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"
               >
                 <Download className="w-4 h-4" />
-                Exporteer Rapport
+                Resultaten & Agenda
+              </button>
+              <button 
+                onClick={() => handleGenerateReport('full')}
+                className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors whitespace-nowrap"
+              >
+                <Download className="w-4 h-4" />
+                Compleet Rapport
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <main id="pdf-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16 bg-slate-50">
+      <main id="pdf-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16 bg-slate-50 dark:bg-slate-900 transition-colors">
         
         {/* Section 1: Theory */}
         <section id="theorie" className="space-y-8 scroll-mt-24">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12 transition-colors">
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 text-center">Uitgangspunten van De Vertrouwensboom</h2>
-              <div className="prose prose-slate prose-lg max-w-none">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-center">Uitgangspunten van De Vertrouwensboom</h2>
+              <div className="prose prose-slate dark:prose-invert prose-lg max-w-none text-slate-700 dark:text-slate-300">
                 <p>
                   De Vertrouwensboom biedt Examencommissies een specifiek en praktisch overzicht van borgingsinstrumenten voor programmatisch toetsen. Het document beoogt examencommissies te voorzien van inspiratie bij de selectie van instrumenten om te komen tot een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem. Het helpt grip te houden op kwaliteit, bijsturing te onderbouwen en het verlenen van een graad te onderschrijven.
                 </p>
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mt-8 print:break-before-page">
-                <div className="bg-slate-100 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200">
-                  <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center">Borging is...</h3>
-                  <div className="prose prose-slate prose-lg max-w-none">
+                <div className="bg-slate-100 dark:bg-slate-700/50 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200 dark:border-slate-600 transition-colors">
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center">Borging is...</h3>
+                  <div className="prose prose-slate dark:prose-invert prose-lg max-w-none text-slate-700 dark:text-slate-300">
                     <p className="mb-6">
                       De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:
                     </p>
@@ -604,9 +667,9 @@ export default function App() {
                     </ul>
                   </div>
                 </div>
-                <div className="bg-slate-100 rounded-xl p-6 md:p-8 flex flex-col items-center justify-start border border-slate-200 min-h-[300px]">
-                  <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center w-full">De Vertrouwensboom</h3>
-                  <div className="relative w-full aspect-square max-w-md mx-auto overflow-hidden rounded-lg shadow-md bg-white flex items-center justify-center mt-auto mb-auto">
+                <div className="bg-slate-100 dark:bg-slate-700/50 rounded-xl p-6 md:p-8 flex flex-col items-center justify-start border border-slate-200 dark:border-slate-600 min-h-[300px] transition-colors">
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center w-full">De Vertrouwensboom</h3>
+                  <div className="relative w-full aspect-square max-w-md mx-auto overflow-hidden rounded-lg shadow-md bg-white dark:bg-slate-800 flex items-center justify-center mt-auto mb-auto transition-colors">
                     <img 
                       src="./vertrouwensboom.png" 
                       alt="Vertrouwensboom" 
@@ -616,7 +679,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="prose prose-slate prose-lg max-w-none mt-8">
+              <div className="prose prose-slate dark:prose-invert prose-lg max-w-none mt-8 text-slate-700 dark:text-slate-300">
                 <p>
                   Het voornaamste uitgangspunt is het vertrouwen dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten.
                 </p>
@@ -628,8 +691,8 @@ export default function App() {
         {/* Section 2: Self-Scan */}
         <section id="zelfscan" className="space-y-8 scroll-mt-24 print:break-before-page">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Zelfscan van het Instrumentarium</h2>
-            <p className="text-lg text-slate-600">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Zelfscan van het Instrumentarium</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-300">
               Geef aan welke instrumenten u hanteert en of actie vereist is (evt. door wie en wanneer).<br />
               Geef per categorie uw vertrouwen aan en voeg evt. een opmerking toe.
             </p>
@@ -640,9 +703,9 @@ export default function App() {
                   id="toggle-action-details" 
                   checked={showActionDetails} 
                   onChange={(e) => setShowActionDetails(e.target.checked)}
-                  className="w-4 h-4 text-slate-900 rounded border-slate-300 focus:ring-slate-900"
+                  className="w-4 h-4 text-slate-900 dark:text-slate-100 rounded border-slate-300 dark:border-slate-600 focus:ring-slate-900 dark:focus:ring-slate-100 bg-white dark:bg-slate-800"
                 />
-                <label htmlFor="toggle-action-details" className="text-sm font-medium text-slate-700 cursor-pointer">
+                <label htmlFor="toggle-action-details" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
                   Actieplanning t.b.v. borgingsagenda in-/uitschakelen
                 </label>
               </div>
@@ -653,7 +716,7 @@ export default function App() {
                     window.location.reload();
                   }
                 }}
-                className="flex items-center gap-2 bg-white text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors print:hidden"
+                className="flex items-center gap-2 bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors print:hidden"
               >
                 Wis Gegevens
               </button>
@@ -662,12 +725,12 @@ export default function App() {
 
           <div className="space-y-4">
             {categories.map(category => (
-              <div key={category.id} id={`category-${category.id}`} className={`rounded-xl overflow-hidden border ${category.borderColorClass} shadow-sm ${category.colorClass} bg-opacity-20 print-break-avoid scroll-mt-24`}>
-                <div className={`${category.colorClass} px-4 py-2 border-b ${category.borderColorClass} flex flex-col md:flex-row md:items-center justify-between gap-2`}>
-                  <h3 className={`text-lg font-bold ${category.textColorClass}`}>{category.name}</h3>
+              <div key={category.id} id={`category-${category.id}`} className={`rounded-xl overflow-hidden border ${category.borderColorClass} dark:border-slate-700 shadow-sm ${category.colorClass} dark:bg-slate-800 bg-opacity-20 dark:bg-opacity-100 print-break-avoid scroll-mt-24 transition-colors`}>
+                <div className={`${category.colorClass} dark:bg-slate-700/50 px-4 py-2 border-b ${category.borderColorClass} dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-2 transition-colors`}>
+                  <h3 className={`text-lg font-bold ${category.textColorClass} dark:text-slate-100`}>{category.name}</h3>
                   
-                  <div className="flex items-center gap-3 bg-white/60 px-3 py-1.5 rounded-lg backdrop-blur-sm">
-                    <span className="text-sm font-bold text-slate-800">Vertrouwen:</span>
+                  <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Vertrouwen:</span>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map(rating => {
                         const isSelected = (confidence[category.id] || 0) >= rating;
@@ -687,14 +750,14 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="divide-y divide-black/5">
+                <div className="divide-y divide-black/5 dark:divide-white/5">
                   {category.elements.map(element => (
                     <div key={element.id} className="px-4 py-2">
                       <div className="mb-1.5 flex items-baseline gap-2">
-                        <h4 className="text-base font-bold text-slate-800">{element.name}</h4>
-                        <p className="text-xs text-slate-600 hidden md:block">- {element.description}</p>
+                        <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">{element.name}</h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 hidden md:block">- {element.description}</p>
                       </div>
-                      <p className="text-xs text-slate-600 md:hidden mb-2">{element.description}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 md:hidden mb-2">{element.description}</p>
                       
                       <div className="space-y-1.5">
                         {element.instruments.map(instrument => {
@@ -703,36 +766,42 @@ export default function App() {
                           const isNietNodig = !!checkedNietNodig[instrument.id];
                           
                           const itemBgClass = isVergtActie 
-                            ? 'bg-amber-50 border-amber-300 hover:border-amber-500 hover:shadow-sm' 
+                            ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700 hover:border-amber-500 dark:hover:border-amber-500 hover:shadow-sm' 
                             : isDoeIk 
-                              ? 'bg-emerald-50 border-emerald-300 hover:border-emerald-500 hover:shadow-sm' 
+                              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-sm' 
                               : isNietNodig
-                                ? 'bg-slate-100 border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300'
-                                : 'bg-white/60 border-slate-200 hover:bg-white/90 hover:border-slate-400 hover:shadow-sm';
+                                ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60 hover:opacity-100 hover:border-slate-300 dark:hover:border-slate-600'
+                                : 'bg-white/60 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:bg-white/90 dark:hover:bg-slate-800/90 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-sm';
 
                           return (
                             <div key={instrument.id} className={`flex flex-col gap-0 rounded-lg border transition-all duration-200 ${itemBgClass}`}>
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3">
-                                <div className={`flex-1 text-sm leading-snug ${isNietNodig ? 'text-slate-500 line-through' : 'text-slate-800'}`}>
+                                <div className={`flex-1 text-sm leading-snug ${isNietNodig ? 'text-slate-500 dark:text-slate-500 line-through' : 'text-slate-800 dark:text-slate-200'}`}>
                                   {instrument.text}
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                                   <button
                                     onClick={() => handleDoeIkChange(instrument.id)}
+                                    disabled={isNietNodig}
                                     className={`print-keep-button px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
-                                      isDoeIk 
-                                        ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' 
-                                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                                      isNietNodig
+                                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-50'
+                                        : isDoeIk 
+                                          ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' 
+                                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
                                     Doen we
                                   </button>
                                   <button
                                     onClick={() => handleVergtActieChange(instrument.id)}
+                                    disabled={isNietNodig}
                                     className={`print-keep-button px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
-                                      isVergtActie 
-                                        ? 'bg-amber-500 text-white border-amber-600 shadow-sm' 
-                                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                                      isNietNodig
+                                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-50'
+                                        : isVergtActie 
+                                          ? 'bg-amber-500 text-white border-amber-600 shadow-sm' 
+                                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
                                     Vergt actie
@@ -742,7 +811,7 @@ export default function App() {
                                     className={`print-keep-button px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
                                       isNietNodig 
                                         ? 'bg-slate-500 text-white border-slate-600 shadow-sm' 
-                                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
                                     Niet nodig
@@ -751,25 +820,25 @@ export default function App() {
                               </div>
                               
                               {isVergtActie && showActionDetails && (
-                                <div className="flex flex-col sm:flex-row gap-4 px-3 pb-3 pt-2 border-t border-black/5 print:border-none print:pt-0">
+                                <div className="flex flex-col sm:flex-row gap-4 px-3 pb-3 pt-2 border-t border-black/5 dark:border-white/5 print:border-none print:pt-0">
                                   <div className="flex-1 flex items-center gap-2">
-                                    <User className="w-4 h-4 text-slate-500" />
+                                    <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input 
                                       type="text" 
                                       placeholder="Eigenaar..." 
                                       value={actionDetails[instrument.id]?.owner || ''}
                                       onChange={(e) => handleActionDetailChange(instrument.id, 'owner', e.target.value)}
-                                      className="text-sm bg-transparent border-b border-slate-300 px-1 py-1 w-full focus:outline-none focus:border-slate-500"
+                                      className="text-sm bg-transparent border-b border-slate-300 dark:border-slate-600 px-1 py-1 w-full focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                     />
                                   </div>
                                   <div className="flex-1 flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-slate-500" />
+                                    <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input 
                                       type="text" 
                                       placeholder="Deadline (bijv. Q3 2026)..." 
                                       value={actionDetails[instrument.id]?.deadline || ''}
                                       onChange={(e) => handleActionDetailChange(instrument.id, 'deadline', e.target.value)}
-                                      className="text-sm bg-transparent border-b border-slate-300 px-1 py-1 w-full focus:outline-none focus:border-slate-500"
+                                      className="text-sm bg-transparent border-b border-slate-300 dark:border-slate-600 px-1 py-1 w-full focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                     />
                                   </div>
                                 </div>
@@ -782,23 +851,23 @@ export default function App() {
                   ))}
                   
                   {/* Category Comments */}
-                  <div className="px-4 py-3 bg-white/40 border-t border-black/5">
+                  <div className="px-4 py-3 bg-white/40 dark:bg-slate-800/40 border-t border-black/5 dark:border-white/5">
                     {!(showCommentInput[category.id] || categoryComments[category.id]) ? (
                       <button 
                         onClick={() => setShowCommentInput(prev => ({ ...prev, [category.id]: true }))}
-                        className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 font-medium transition-colors print:hidden"
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1 font-medium transition-colors print:hidden"
                       >
                         <MessageSquare className="w-4 h-4" />
                         Voeg opmerking toe
                       </button>
                     ) : (
                       <div className="flex items-start gap-2">
-                        <MessageSquare className="w-4 h-4 text-slate-400 mt-1 shrink-0" />
+                        <MessageSquare className="w-4 h-4 text-slate-400 dark:text-slate-500 mt-1 shrink-0" />
                         <textarea
                           value={categoryComments[category.id] || ''}
                           onChange={(e) => setCategoryComments(prev => ({ ...prev, [category.id]: e.target.value }))}
                           placeholder={`Opmerkingen voor ${category.name}...`}
-                          className="w-full text-sm bg-white/80 border border-slate-200 rounded-lg px-3 py-2 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-slate-400 resize-y"
+                          className="w-full text-sm bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 resize-y text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                           autoFocus={!categoryComments[category.id]}
                         />
                       </div>
@@ -811,36 +880,33 @@ export default function App() {
         </section>
 
         {/* Section 3: Resultaten */}
-        <section id="resultaten" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200">
+        <section id="resultaten" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200 dark:border-slate-700">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Resultaten</h2>
-            <p className="text-lg text-slate-600">
-              Visuele weergave van uw zelfscan en de borgingsgraad per categorie.
-            </p>
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Resultaten</h2>
           </div>
 
-          <div id="resultaten-content" className="space-y-8 bg-slate-50 p-2 -m-2 rounded-xl">
+          <div id="resultaten-content" className="space-y-8 bg-slate-50 dark:bg-slate-900 p-2 -m-2 rounded-xl transition-colors">
             {/* Infographic: Totaalbeeld */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
-              <h3 className="text-xl font-bold text-slate-800 mb-6 text-center">Totaalbeeld Borging</h3>
+            <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6 text-center">Totaalbeeld Borging</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center shadow-sm flex flex-col justify-center">
-                  <div className="text-4xl font-black text-emerald-600">{totalDoeIk} <span className="text-2xl text-emerald-400">/ {totalInstruments}</span></div>
-                  <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-2">Ingezet ("Doen we")</div>
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 text-center shadow-sm flex flex-col justify-center transition-colors">
+                  <div className="text-4xl font-black text-emerald-600 dark:text-emerald-400">{totalDoeIk} <span className="text-2xl text-emerald-400 dark:text-emerald-600">/ {totalInstruments}</span></div>
+                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase tracking-wider mt-2">Ingezet ("Doen we")</div>
                 </div>
-                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center shadow-sm flex flex-col justify-center">
-                  <div className="text-4xl font-black text-amber-600">{totalVergtActie}</div>
-                  <div className="text-xs font-bold text-amber-700 uppercase tracking-wider mt-2">Vergt Actie</div>
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800 text-center shadow-sm flex flex-col justify-center transition-colors">
+                  <div className="text-4xl font-black text-amber-600 dark:text-amber-400">{totalVergtActie}</div>
+                  <div className="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wider mt-2">Vergt Actie</div>
                 </div>
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center shadow-sm flex flex-col justify-center">
-                  <div className="text-4xl font-black text-blue-600">{avgConfidence} <span className="text-lg text-blue-400">/ 5</span></div>
-                  <div className="text-xs font-bold text-blue-700 uppercase tracking-wider mt-2">Gem. Vertrouwen</div>
-                  <div className="text-xs text-blue-600 mt-2 font-medium">Min: {minConf} | Max: {maxConf}</div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 text-center shadow-sm flex flex-col justify-center transition-colors">
+                  <div className="text-4xl font-black text-blue-600 dark:text-blue-400">{avgConfidence} <span className="text-lg text-blue-400 dark:text-blue-600">/ 5</span></div>
+                  <div className="text-xs font-bold text-blue-700 dark:text-blue-500 uppercase tracking-wider mt-2">Gem. Vertrouwen</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">Min: {minConf} | Max: {maxConf}</div>
                 </div>
               </div>
               
               <div className="space-y-3 mt-8 print:break-before-page">
-                <h4 className="text-lg font-bold text-slate-800 border-b border-slate-200 pb-2">Borgingsgraad per Categorie</h4>
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 pb-2 transition-colors">Borgingsgraad per Categorie</h4>
                 <div className="flex flex-col gap-2">
                   {categories.map(category => {
                     const catInstruments = category.elements.flatMap(e => e.instruments).filter(inst => !checkedNietNodig[inst.id]);
@@ -852,27 +918,27 @@ export default function App() {
                     const barColor = `hsl(${hue}, 80%, 45%)`;
 
                     return (
-                      <div key={category.id} className={`${category.colorClass} bg-opacity-40 p-2.5 rounded-lg border border-slate-200 shadow-sm`}>
+                      <div key={category.id} className={`${category.colorClass} dark:bg-slate-800/50 bg-opacity-40 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-colors`}>
                         <div className="flex items-center gap-3">
                           {catGraad === 100 ? (
                             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                           ) : (
                             <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
                           )}
-                          <span className={`text-sm font-bold ${category.textColorClass} w-32 sm:w-48 shrink-0 leading-tight`}>
+                          <span className={`text-sm font-bold ${category.textColorClass} dark:text-slate-200 w-32 sm:w-48 shrink-0 leading-tight`}>
                             {category.name}
                           </span>
                           <div className="flex-1 flex items-center gap-3">
-                            <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                            <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden transition-colors">
                               <div className="h-full transition-all duration-1000" style={{ width: `${catGraad}%`, backgroundColor: barColor }}></div>
                             </div>
-                            <span className="text-sm font-black text-slate-700 w-10 text-right">{catGraad}%</span>
+                            <span className="text-sm font-black text-slate-700 dark:text-slate-300 w-10 text-right">{catGraad}%</span>
                           </div>
                         </div>
                         
                         {verbeterActies.length > 0 && (
-                          <div className="text-xs text-slate-600 leading-snug pl-8 mt-2">
-                            <span className="font-bold text-slate-500 uppercase tracking-wider">Doen we niet:</span>
+                          <div className="text-xs text-slate-600 dark:text-slate-400 leading-snug pl-8 mt-2">
+                            <span className="font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider">Doen we niet:</span>
                             <ul className="list-disc pl-4 mt-1 space-y-1">
                               {verbeterActies.map(inst => (
                                 <li key={inst.id}>{inst.text}</li>
@@ -889,8 +955,8 @@ export default function App() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:break-before-page print:break-inside-avoid">
               {/* Spider Chart */}
-              <div id="spider-chart-container" className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                <h3 className="text-lg font-bold text-slate-800 mb-6 text-center">Inzet van Instrumenten (%)</h3>
+              <div id="spider-chart-container" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Inzet van Instrumenten (%)</h3>
                 <div className="flex-1 min-h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -905,8 +971,8 @@ export default function App() {
               </div>
 
               {/* Bar Chart */}
-              <div id="bar-chart-container" className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                <h3 className="text-lg font-bold text-slate-800 mb-6 text-center">Mate van vertrouwen (%)</h3>
+              <div id="bar-chart-container" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Mate van vertrouwen (%)</h3>
                 <div className="flex-1 min-h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
@@ -936,27 +1002,27 @@ export default function App() {
         </section>
 
         {/* Section 4: Agenda */}
-        <section id="agenda" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200">
+        <section id="agenda" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Agenda</h2>
-            <p className="text-lg text-slate-600">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Agenda</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-300">
               Overzicht van aandachtspunten en uw geprioriteerde borgingsagenda.
             </p>
           </div>
 
-          <div id="agenda-content" className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-slate-50 p-2 -m-2 rounded-xl">
+          <div id="agenda-content" className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-slate-50 dark:bg-slate-900 p-2 -m-2 rounded-xl transition-colors">
             {/* Borgingsagenda */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-full transition-colors">
+              <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700 transition-colors">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                   Borgingsagenda
                 </h3>
-                <p className="text-sm text-slate-500 mt-1">Instrumenten die actie vergen. Wijzig de volgorde om prioriteit aan te geven.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instrumenten die actie vergen. Wijzig de volgorde om prioriteit aan te geven.</p>
               </div>
-              <div className="p-6 flex-1 bg-slate-50/50">
+              <div className="p-6 flex-1 bg-slate-50/50 dark:bg-slate-900/20 transition-colors">
                 {borgingsagenda.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                     <Info className="w-12 h-12 mb-2 opacity-50" />
                     <p>Geen actiepunten geselecteerd.</p>
                   </div>
@@ -965,7 +1031,7 @@ export default function App() {
                     {borgingsagenda.map((item, index) => (
                       <li 
                         key={`agenda-${item.instrument.id}`} 
-                        className={`bg-white p-3 rounded-xl border ${draggedIndex === index ? 'border-emerald-500 shadow-md opacity-50' : 'border-slate-200 shadow-sm'} flex gap-3 group cursor-grab active:cursor-grabbing transition-all`}
+                        className={`bg-white dark:bg-slate-800 p-3 rounded-xl border ${draggedIndex === index ? 'border-emerald-500 shadow-md opacity-50' : 'border-slate-200 dark:border-slate-700 shadow-sm'} flex gap-3 group cursor-grab active:cursor-grabbing transition-all`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
@@ -973,18 +1039,18 @@ export default function App() {
                         onDragEnd={handleDragEnd}
                       >
                         <div className="flex flex-col items-center justify-center gap-1 shrink-0">
-                          <GripVertical className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />
+                          <GripVertical className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-400" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${item.category.colorClass} ${item.category.textColorClass}`}>
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${item.category.colorClass} ${item.category.textColorClass} dark:text-slate-100`}>
                               {item.category.name}
                             </span>
-                            <span className="text-xs font-medium text-slate-500">{item.element.name}</span>
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.element.name}</span>
                           </div>
-                          <p className="text-sm text-slate-700 line-clamp-3 group-hover:line-clamp-none transition-all">{item.instrument.text}</p>
+                          <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-3 group-hover:line-clamp-none transition-all">{item.instrument.text}</p>
                           {showActionDetails && (
-                            <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 print:mt-1">
+                            <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 print:mt-1">
                               <div className="flex items-center gap-1">
                                 <User className="w-3.5 h-3.5" />
                                 <span className="font-medium">{actionDetails[item.instrument.id]?.owner || '_________________'}</span>
@@ -1004,31 +1070,31 @@ export default function App() {
             </div>
 
             {/* Aandachtspunten */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full print:break-before-page">
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-full print:break-before-page transition-colors">
+              <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700 transition-colors">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-amber-500" />
                   Aandachtspunten
                 </h3>
-                <p className="text-sm text-slate-500 mt-1">Instrumenten die momenteel niet worden ingezet (geen "Doen we").</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instrumenten die momenteel niet worden ingezet (geen "Doen we").</p>
               </div>
-              <div className="p-6 flex-1 bg-slate-50/50">
+              <div className="p-6 flex-1 bg-slate-50/50 dark:bg-slate-900/20 transition-colors">
                 {aandachtspunten.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                    <CheckCircle2 className="w-12 h-12 mb-2 text-emerald-400" />
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
+                    <CheckCircle2 className="w-12 h-12 mb-2 text-emerald-400 dark:text-emerald-500" />
                     <p>Geen aandachtspunten. U zet alle instrumenten in!</p>
                   </div>
                 ) : (
                   <ul className="space-y-4">
                     {aandachtspunten.map((item, idx) => (
-                      <li key={`aandacht-${idx}`} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                      <li key={`aandacht-${idx}`} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className={`text-xs font-semibold px-2 py-1 rounded-md ${item.category.colorClass} ${item.category.textColorClass}`}>
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-md ${item.category.colorClass} ${item.category.textColorClass} dark:text-slate-100`}>
                             {item.category.name}
                           </span>
-                          <span className="text-xs font-medium text-slate-500">{item.element.name}</span>
+                          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.element.name}</span>
                         </div>
-                        <p className="text-sm text-slate-700">{item.instrument.text}</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{item.instrument.text}</p>
                       </li>
                     ))}
                   </ul>
@@ -1040,17 +1106,17 @@ export default function App() {
       </main>
 
       {/* Colofon */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-slate-200 text-center text-xs text-slate-500 print:mt-8 print:py-4">
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 print:mt-8 print:py-4 transition-colors">
         <p className="mb-1">
-          <strong>Auteur:</strong> Tim Gerbrands &nbsp;|&nbsp; <strong>Laatst bijgewerkt:</strong> 27 maart 2026
+          <strong className="dark:text-slate-300">Auteur:</strong> <span className="dark:text-slate-400">Tim Gerbrands</span> &nbsp;|&nbsp; <strong className="dark:text-slate-300">Laatst bijgewerkt:</strong> <span className="dark:text-slate-400">27 maart 2026</span>
         </p>
         <p>
-          <strong>Publicatie over De Vertrouwensboom:</strong>{' '}
+          <strong className="dark:text-slate-300">Publicatie over De Vertrouwensboom:</strong>{' '}
           <a 
             href="https://e-xamens.nl/februari-2026-01/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors font-medium"
           >
             Examens - Tijdschrift voor de toetspraktijk, feb. 2026
           </a>
