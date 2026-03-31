@@ -168,7 +168,7 @@ export default function App() {
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Borgingsrapport</title>
+  <title>Borgingsanalyse Vertrouwensboom</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -192,7 +192,7 @@ export default function App() {
   ${reportType === 'full' ? `
   <!-- Page 1: Cover -->
   <div class="h-screen flex flex-col items-center justify-center relative p-8 text-center">
-    <h1 class="text-5xl font-extrabold text-slate-900 mb-8">Borgen middels De Vertrouwensboom</h1>
+    <h1 class="text-5xl font-extrabold text-slate-900 mb-8">De Vertrouwensboom: Borgingsanalyse</h1>
     <img src="./vertrouwensboom.png" alt="De Vertrouwensboom" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
     <h2 class="text-2xl font-medium text-slate-600">Een zelfscan van het borgende instrumentarium</h2>
     <div class="absolute bottom-12 text-slate-400 font-medium">${new Date().toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
@@ -656,7 +656,7 @@ export default function App() {
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm py-4 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-4">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white text-center">Borgen middels De Vertrouwensboom</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white text-center">De Vertrouwensboom: Borgingsanalyse</h1>
           
           <div className="relative flex items-center justify-center w-full">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center print:hidden">
@@ -675,24 +675,13 @@ export default function App() {
               <a href="#agenda" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Agenda</a>
             </nav>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 print:hidden bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300 px-2 flex items-center gap-1">
+              <button 
+                onClick={() => handleGenerateReport('full')}
+                className="flex items-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
+              >
                 <Download className="w-4 h-4" />
-                Exporteer
-              </span>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => handleGenerateReport('full')}
-                  className="bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
-                >
-                  Alles
-                </button>
-                <button 
-                  onClick={() => handleGenerateReport('results')}
-                  className="bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
-                >
-                  Resultaten
-                </button>
-              </div>
+                Exporteer analyse
+              </button>
             </div>
           </div>
         </div>
@@ -849,26 +838,20 @@ export default function App() {
                                 <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                                   <button
                                     onClick={() => handleDoeIkChange(instrument.id)}
-                                    disabled={isNietNodig}
                                     className={`print-keep-button px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
-                                      isNietNodig
-                                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-50'
-                                        : isDoeIk 
-                                          ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' 
-                                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                      isDoeIk 
+                                        ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' 
+                                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
                                     Doen we
                                   </button>
                                   <button
                                     onClick={() => handleVergtActieChange(instrument.id)}
-                                    disabled={isNietNodig}
                                     className={`print-keep-button px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
-                                      isNietNodig
-                                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-50'
-                                        : isVergtActie 
-                                          ? 'bg-amber-500 text-white border-amber-600 shadow-sm' 
-                                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                      isVergtActie 
+                                        ? 'bg-amber-500 text-white border-amber-600 shadow-sm' 
+                                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
                                     Vergt actie
@@ -1182,7 +1165,7 @@ export default function App() {
       {/* Colofon */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 print:mt-8 print:py-4 transition-colors">
         <p className="mb-1">
-          <strong className="dark:text-slate-300">Auteur:</strong> <span className="dark:text-slate-400">Tim Gerbrands</span> &nbsp;|&nbsp; <strong className="dark:text-slate-300">Laatst bijgewerkt:</strong> <span className="dark:text-slate-400">27 maart 2026</span>
+          <strong className="dark:text-slate-300">Auteur:</strong> <span className="dark:text-slate-400">Tim Gerbrands</span> &nbsp;|&nbsp; <strong className="dark:text-slate-300">Laatst bijgewerkt:</strong> <span className="dark:text-slate-400">{new Date().toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </p>
         <p>
           <strong className="dark:text-slate-300">Publicatie over De Vertrouwensboom:</strong>{' '}
