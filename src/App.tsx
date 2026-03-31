@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import html2canvas from 'html2canvas';
+import * as htmlToImage from 'html-to-image';
 import { categories, Category, Instrument } from './data';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
 import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare, Moon, Sun } from 'lucide-react';
@@ -107,19 +107,49 @@ export default function App() {
 
     const captureWithTimeout = (el: HTMLElement, options: any, timeoutMs: number) => {
       return Promise.race([
-        html2canvas(el, options),
-        new Promise<HTMLCanvasElement>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs))
+        htmlToImage.toPng(el, options),
+        new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs))
       ]);
+    };
+
+    const prepareForCapture = (el: HTMLElement) => {
+      const rect = el.getBoundingClientRect();
+      const originalWidth = el.style.width;
+      const originalHeight = el.style.height;
+      
+      el.style.width = `${rect.width}px`;
+      el.style.height = `${rect.height}px`;
+      
+      const rechartsWrapper = el.querySelector('.recharts-wrapper') as HTMLElement;
+      let wrapperOriginalWidth = '';
+      let wrapperOriginalHeight = '';
+      if (rechartsWrapper) {
+        wrapperOriginalWidth = rechartsWrapper.style.width;
+        wrapperOriginalHeight = rechartsWrapper.style.height;
+        rechartsWrapper.style.width = `${rect.width - 48}px`; // accounting for p-6 padding
+        rechartsWrapper.style.height = `350px`;
+      }
+
+      return () => {
+        el.style.width = originalWidth;
+        el.style.height = originalHeight;
+        if (rechartsWrapper) {
+          rechartsWrapper.style.width = wrapperOriginalWidth;
+          rechartsWrapper.style.height = wrapperOriginalHeight;
+        }
+      };
     };
 
     try {
       if (spiderEl) {
-        const canvas = await captureWithTimeout(spiderEl, { scale: 2, useCORS: true, logging: false }, 8000);
-        spiderImg = canvas.toDataURL('image/png');
+        const restore = prepareForCapture(spiderEl);
+        spiderImg = await captureWithTimeout(spiderEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }, 8000);
+        restore();
       }
       if (barEl) {
-        const canvas = await captureWithTimeout(barEl, { scale: 2, useCORS: true, logging: false }, 8000);
-        barImg = canvas.toDataURL('image/png');
+        const restore = prepareForCapture(barEl);
+        barImg = await captureWithTimeout(barEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }, 8000);
+        restore();
       }
     } catch (e) {
       console.error("Error capturing charts", e);
@@ -168,43 +198,30 @@ export default function App() {
         De Vertrouwensboom biedt Examencommissies een specifiek en praktisch overzicht van borgingsinstrumenten voor programmatisch toetsen. Het document beoogt examencommissies te voorzien van inspiratie bij de selectie van instrumenten om te komen tot een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem. Het helpt grip te houden op kwaliteit, bijsturing te onderbouwen en het verlenen van een graad te onderschrijven.
       </p>
       
-      <div class="grid grid-cols-2 gap-8 items-stretch mt-8">
-        <div class="bg-slate-100 rounded-xl p-6 flex flex-col justify-start border border-slate-200">
-          <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Borging is...</h3>
-          <ul class="space-y-4 list-none pl-0">
-            <li class="flex items-start">
-              <span class="text-emerald-500 mr-3 mt-1 text-xl">✓</span>
-              <span>Het structureel inbedden van afspraken, processen en gedrag.</span>
-            </li>
-            <li class="flex items-start">
-              <span class="text-emerald-500 mr-3 mt-1 text-xl">✓</span>
-              <span>Zorgen dat wat we beloven, ook daadwerkelijk gebeurt en blijft gebeuren.</span>
-            </li>
-            <li class="flex items-start">
-              <span class="text-emerald-500 mr-3 mt-1 text-xl">✓</span>
-              <span>Een continu proces van monitoren, evalueren en verbeteren.</span>
-            </li>
-          </ul>
-        </div>
-        
-        <div class="bg-slate-100 rounded-xl p-6 flex flex-col justify-start border border-slate-200">
-          <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Borging is niet...</h3>
-          <ul class="space-y-4 list-none pl-0">
-            <li class="flex items-start">
-              <span class="text-rose-500 mr-3 mt-1 text-xl">✗</span>
-              <span>Een eenmalige afvinklijst of administratieve last.</span>
-            </li>
-            <li class="flex items-start">
-              <span class="text-rose-500 mr-3 mt-1 text-xl">✗</span>
-              <span>Een garantie dat er nooit iets misgaat, maar wel dat we ervan leren.</span>
-            </li>
-            <li class="flex items-start">
-              <span class="text-rose-500 mr-3 mt-1 text-xl">✗</span>
-              <span>Een statisch document dat in een la verdwijnt.</span>
-            </li>
-          </ul>
-        </div>
+      <div class="bg-slate-100 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200 mt-8">
+        <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Borging is...</h3>
+        <p class="mb-6">
+          De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:
+        </p>
+        <ul class="list-none pl-0 space-y-4">
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
+            <span><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
+            <span><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
+            <span><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</span>
+          </li>
+        </ul>
       </div>
+
+      <p class="mt-8">
+        Het voornaamste uitgangspunt is het vertrouwen dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten.
+      </p>
     </div>
   </div>
   ` : ''}
@@ -381,9 +398,6 @@ export default function App() {
   <!-- Footer / Colofon -->
   <div class="mt-16 pt-8 border-t border-slate-200 text-center text-sm text-slate-500 pb-8">
     <p class="mb-2">De Vertrouwensboom, Tim Gerbrands, 2025</p>
-    <a href="https://www.linkedin.com/pulse/de-vertrouwensboom-tim-gerbrands-msc-m-ed-1e/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
-      Lees de publicatie op LinkedIn
-    </a>
   </div>
 
   <script>
@@ -618,7 +632,7 @@ export default function App() {
     const color = category ? getCategoryColorHex(category.id) : '#64748b';
     return (
       <g className="cursor-pointer" onClick={() => category && scrollToCategory(category.id)}>
-        <text radius={radius} stroke={stroke} x={x} y={y} className="text-[10px] sm:text-xs font-bold hover:opacity-80 transition-opacity" textAnchor={textAnchor} fill={color}>
+        <text radius={radius} stroke={stroke} x={x} y={y} style={{ fontSize: '10px', fontWeight: 'bold' }} className="hover:opacity-80 transition-opacity" textAnchor={textAnchor} fill={color}>
           {payload.value}
         </text>
       </g>
