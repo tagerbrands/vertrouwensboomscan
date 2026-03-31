@@ -208,25 +208,23 @@ export default function App() {
       
       <div class="bg-slate-100 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200 mt-8">
         <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Borging is...</h3>
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <p class="mb-6">
-            De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:
-          </p>
-          <ul class="list-none pl-0 space-y-4">
-            <li class="flex items-start">
-              <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-              <span><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</span>
-            </li>
-            <li class="flex items-start">
-              <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-              <span><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</span>
-            </li>
-            <li class="flex items-start">
-              <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-              <span><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</span>
-            </li>
-          </ul>
-        </div>
+        <p class="mb-6">
+          De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:
+        </p>
+        <ul class="list-none pl-0 space-y-4">
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
+            <span><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
+            <span><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
+            <span><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</span>
+          </li>
+        </ul>
       </div>
 
       <p class="mt-8">
@@ -937,7 +935,7 @@ export default function App() {
         <section id="resultaten" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200 dark:border-slate-700">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Resultaten</h2>
-            <p className="text-md font-medium text-blue-600 dark:text-blue-400 mt-2 print:hidden">
+            <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden">
               <span className="hidden md:inline">Sla de analyse bovenaan op via 'Exporteer analyse'.</span>
               <span className="inline md:hidden">Tip: in de desktopversie kun je de analyse opslaan.</span>
             </p>
