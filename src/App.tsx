@@ -754,6 +754,9 @@ export default function App() {
               Geef aan welke instrumenten u hanteert en of actie vereist is (evt. door wie en wanneer).<br />
               Geef per categorie uw vertrouwen aan en voeg evt. een opmerking toe.
             </p>
+            <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden md:hidden">
+              Tip: in de desktopversie kun je de analyse opslaan.
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 w-full">
             <div className="flex items-center gap-2">
@@ -935,9 +938,8 @@ export default function App() {
         <section id="resultaten" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200 dark:border-slate-700">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Resultaten</h2>
-            <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden">
-              <span className="hidden md:inline">Sla de analyse bovenaan op via 'Exporteer analyse'.</span>
-              <span className="inline md:hidden">Tip: in de desktopversie kun je de analyse opslaan.</span>
+            <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden hidden md:block">
+              Sla de analyse bovenaan op via 'Exporteer analyse'.
             </p>
           </div>
 
