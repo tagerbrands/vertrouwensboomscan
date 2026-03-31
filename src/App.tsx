@@ -142,14 +142,22 @@ export default function App() {
 
     try {
       if (spiderEl) {
-        const restore = prepareForCapture(spiderEl);
-        spiderImg = await captureWithTimeout(spiderEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }, 8000);
-        restore();
+        let restore = () => {};
+        try {
+          restore = prepareForCapture(spiderEl);
+          spiderImg = await captureWithTimeout(spiderEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', cacheBust: true }, 8000);
+        } finally {
+          restore();
+        }
       }
       if (barEl) {
-        const restore = prepareForCapture(barEl);
-        barImg = await captureWithTimeout(barEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }, 8000);
-        restore();
+        let restore = () => {};
+        try {
+          restore = prepareForCapture(barEl);
+          barImg = await captureWithTimeout(barEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', cacheBust: true }, 8000);
+        } finally {
+          restore();
+        }
       }
     } catch (e) {
       console.error("Error capturing charts", e);
@@ -192,7 +200,7 @@ export default function App() {
 
   <!-- Page 2: Theorie -->
   <div class="page-break p-8">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2 text-center">Uitgangspunten van De Vertrouwensboom</h2>
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2 text-center">Uitgangspunten</h2>
     <div class="prose prose-slate prose-lg max-w-none text-slate-700">
       <p class="mb-8">
         De Vertrouwensboom biedt Examencommissies een specifiek en praktisch overzicht van borgingsinstrumenten voor programmatisch toetsen. Het document beoogt examencommissies te voorzien van inspiratie bij de selectie van instrumenten om te komen tot een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem. Het helpt grip te houden op kwaliteit, bijsturing te onderbouwen en het verlenen van een graad te onderschrijven.
@@ -272,14 +280,12 @@ export default function App() {
     <div class="space-y-8">
       ${spiderImg ? `
       <div class="avoid-break">
-        <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">Inzet van Instrumenten (%)</h3>
-        <div class="flex justify-center"><img src="${spiderImg}" alt="Spider Chart" style="max-width: 100%; height: auto;" /></div>
+        <div class="flex justify-center"><img src="${spiderImg}" alt="Spider Chart" style="max-width: 80%; max-height: 380px; height: auto; object-fit: contain;" /></div>
       </div>` : ''}
       
       ${barImg ? `
       <div class="avoid-break mt-8">
-        <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">Mate van vertrouwen (%)</h3>
-        <div class="flex justify-center"><img src="${barImg}" alt="Bar Chart" style="max-width: 100%; height: auto;" /></div>
+        <div class="flex justify-center"><img src="${barImg}" alt="Bar Chart" style="max-width: 80%; max-height: 380px; height: auto; object-fit: contain;" /></div>
       </div>` : ''}
     </div>
   </div>
