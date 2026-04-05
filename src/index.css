@@ -1,9 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant extravagant (&:where(.extravagant, .extravagant *));
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.extravagant {
+  background: linear-gradient(135deg, #fce7f3, #e0e7ff, #fef08a);
+  background-attachment: fixed;
+  font-family: "Playfair Display", serif;
+}
+
+.extravagant h1, .extravagant h2, .extravagant h3 {
+  background: linear-gradient(to right, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.extravagant .bg-white, .extravagant .bg-slate-50, .extravagant .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.extravagant.dark {
+  background: linear-gradient(135deg, #4c1d95, #831843, #1e3a8a);
+  background-attachment: fixed;
+}
+
+.extravagant.dark .bg-slate-800, .extravagant.dark .bg-slate-900, .extravagant.dark .bg-slate-700 {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.extravagant.dark h1, .extravagant.dark h2, .extravagant.dark h3 {
+  background: linear-gradient(to right, #f472b6, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @media print {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import * as htmlToImage from 'html-to-image';
+import html2canvas from 'html2canvas';
 import { categories, Category, Instrument } from './data';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
 import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare, Moon, Sun } from 'lucide-react';
@@ -69,98 +69,30 @@ export default function App() {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   const handleGenerateReport = async (reportType: 'full' | 'results') => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert("Pop-up blocker prevented het rapport van openen. Sta pop-ups toe voor deze site.");
-      return;
-    }
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="nl">
-      <head>
-        <meta charset="UTF-8">
-        <title>Rapport wordt gegenereerd...</title>
-        <style>
-          body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f8fafc; color: #334155; }
-          .loader { border: 4px solid #e2e8f0; border-top: 4px solid #0f172a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          .container { text-align: center; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="loader"></div>
-          <h2>Rapport wordt gegenereerd...</h2>
-          <p>Even geduld aub. Dit kan enkele seconden duren.</p>
-        </div>
-      </body>
-      </html>
-    `);
-
-    // Capture charts
-    const spiderEl = document.getElementById('spider-chart-container');
-    const barEl = document.getElementById('bar-chart-container');
+    // Capture charts first
+    const spiderEl = document.getElementById('spider-chart');
+    const barEl = document.getElementById('bar-chart');
     
     let spiderImg = '';
     let barImg = '';
 
-    const captureWithTimeout = (el: HTMLElement, options: any, timeoutMs: number) => {
-      return Promise.race([
-        htmlToImage.toPng(el, options),
-        new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs))
-      ]);
-    };
-
-    const prepareForCapture = (el: HTMLElement) => {
-      const rect = el.getBoundingClientRect();
-      const originalWidth = el.style.width;
-      const originalHeight = el.style.height;
-      
-      el.style.width = `${rect.width}px`;
-      el.style.height = `${rect.height}px`;
-      
-      const rechartsWrapper = el.querySelector('.recharts-wrapper') as HTMLElement;
-      let wrapperOriginalWidth = '';
-      let wrapperOriginalHeight = '';
-      if (rechartsWrapper) {
-        wrapperOriginalWidth = rechartsWrapper.style.width;
-        wrapperOriginalHeight = rechartsWrapper.style.height;
-        rechartsWrapper.style.width = `${rect.width - 48}px`; // accounting for p-6 padding
-        rechartsWrapper.style.height = `350px`;
-      }
-
-      return () => {
-        el.style.width = originalWidth;
-        el.style.height = originalHeight;
-        if (rechartsWrapper) {
-          rechartsWrapper.style.width = wrapperOriginalWidth;
-          rechartsWrapper.style.height = wrapperOriginalHeight;
-        }
-      };
-    };
-
     try {
       if (spiderEl) {
-        let restore = () => {};
-        try {
-          restore = prepareForCapture(spiderEl);
-          spiderImg = await captureWithTimeout(spiderEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', cacheBust: true }, 8000);
-        } finally {
-          restore();
-        }
+        const canvas = await html2canvas(spiderEl, { logging: false, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' });
+        spiderImg = canvas.toDataURL('image/png');
       }
       if (barEl) {
-        let restore = () => {};
-        try {
-          restore = prepareForCapture(barEl);
-          barImg = await captureWithTimeout(barEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', cacheBust: true }, 8000);
-        } finally {
-          restore();
-        }
+        const canvas = await html2canvas(barEl, { logging: false, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' });
+        barImg = canvas.toDataURL('image/png');
       }
     } catch (e) {
       console.error("Error capturing charts", e);
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert("Pop-up blocker prevented het rapport van openen. Sta pop-ups toe voor deze site.");
+      return;
     }
 
     const htmlContent = `
@@ -1015,7 +947,7 @@ export default function App() {
               {/* Spider Chart */}
               <div id="spider-chart-container" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Inzet van Instrumenten (%)</h3>
-                <div className="w-full h-[350px]">
+                <div className="w-full h-[350px]" id="spider-chart">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                       <PolarGrid stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
@@ -1034,7 +966,7 @@ export default function App() {
               {/* Bar Chart */}
               <div id="bar-chart-container" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Mate van vertrouwen (%)</h3>
-                <div className="w-full h-[350px]">
+                <div className="w-full h-[350px]" id="bar-chart">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
