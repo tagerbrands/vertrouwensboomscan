@@ -77,13 +77,37 @@ export default function App() {
     let barImg = '';
 
     try {
+      await new Promise(r => setTimeout(r, 500)); // Give browser time to render charts
+      
       if (spiderEl) {
-        const canvas = await html2canvas(spiderEl, { logging: false, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' });
+        const canvas = await html2canvas(spiderEl, { 
+          logging: false, 
+          backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.getElementById('spider-chart');
+            if (el) {
+              el.style.display = 'block';
+              el.style.visibility = 'visible';
+            }
+          }
+        });
         spiderImg = canvas.toDataURL('image/png');
+        console.log('Spider Image Length:', spiderImg?.length);
       }
       if (barEl) {
-        const canvas = await html2canvas(barEl, { logging: false, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' });
+        const canvas = await html2canvas(barEl, { 
+          logging: false, 
+          backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.getElementById('bar-chart');
+            if (el) {
+              el.style.display = 'block';
+              el.style.visibility = 'visible';
+            }
+          }
+        });
         barImg = canvas.toDataURL('image/png');
+        console.log('Bar Image Length:', barImg?.length);
       }
     } catch (e) {
       console.error("Error capturing charts", e);
@@ -212,12 +236,12 @@ export default function App() {
     <div class="space-y-8">
       ${spiderImg ? `
       <div class="avoid-break">
-        <div class="flex justify-center"><img src="${spiderImg}" alt="Spider Chart" style="max-width: 80%; max-height: 380px; height: auto; object-fit: contain;" /></div>
+        <div class="flex justify-center"><img src="${spiderImg}" alt="Spider Chart" style="width: 100%; max-width: 500px; height: auto; object-fit: contain;" /></div>
       </div>` : ''}
       
       ${barImg ? `
       <div class="avoid-break mt-8">
-        <div class="flex justify-center"><img src="${barImg}" alt="Bar Chart" style="max-width: 80%; max-height: 380px; height: auto; object-fit: contain;" /></div>
+        <div class="flex justify-center"><img src="${barImg}" alt="Bar Chart" style="width: 100%; max-width: 500px; height: auto; object-fit: contain;" /></div>
       </div>` : ''}
     </div>
   </div>
