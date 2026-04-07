@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import * as htmlToImage from 'html-to-image';
 import { categories, Category, Instrument } from './data';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine, ScatterChart, Scatter, ZAxis, ReferenceArea } from 'recharts';
 import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare, Moon, Sun } from 'lucide-react';
 
 // Helper to load state from localStorage
@@ -72,9 +72,11 @@ export default function App() {
     // Capture charts first
     const spiderEl = document.getElementById('spider-chart');
     const barEl = document.getElementById('bar-chart');
+    const matrixEl = document.getElementById('matrix-chart');
     
     let spiderImg = '';
     let barImg = '';
+    let matrixImg = '';
 
     try {
       if (spiderEl) {
@@ -82,6 +84,9 @@ export default function App() {
       }
       if (barEl) {
         barImg = await htmlToImage.toPng(barEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' });
+      }
+      if (matrixEl) {
+        matrixImg = await htmlToImage.toPng(matrixEl, { pixelRatio: 2, backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' });
       }
     } catch (e) {
       console.error("Error capturing charts", e);
@@ -170,15 +175,15 @@ export default function App() {
     <div class="grid grid-cols-3 gap-6 mb-8">
       <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 text-center">
         <div class="text-5xl font-black text-emerald-600">${totalDoeIk} <span class="text-2xl text-emerald-400">/ ${totalInstruments}</span></div>
-        <div class="text-sm font-bold text-emerald-700 uppercase tracking-wider mt-2">Ingezet ("Doen we")</div>
+        <div class="text-sm font-bold text-emerald-700 uppercase tracking-wider mt-2">Ingezet</div>
       </div>
       <div class="bg-amber-50 p-6 rounded-xl border border-amber-200 text-center">
         <div class="text-5xl font-black text-amber-600">${totalVergtActie}</div>
-        <div class="text-sm font-bold text-amber-700 uppercase tracking-wider mt-2">Vergt Actie</div>
+        <div class="text-sm font-bold text-amber-700 uppercase tracking-wider mt-2">Op de agenda</div>
       </div>
       <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
         <div class="text-5xl font-black text-slate-600">${totalNietNodig}</div>
-        <div class="text-sm font-bold text-slate-700 uppercase tracking-wider mt-2">Niet Nodig</div>
+        <div class="text-sm font-bold text-slate-700 uppercase tracking-wider mt-2">Niet nodig</div>
       </div>
     </div>
     
@@ -207,15 +212,20 @@ export default function App() {
   <!-- Page 4: Visuals -->
   <div class="page-break p-8">
     <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Visuele Weergave</h2>
-    <div class="space-y-8">
+    <div class="space-y-4 flex flex-col items-center avoid-break">
       ${spiderImg ? `
-      <div class="avoid-break">
-        <div class="flex justify-center"><img src="${spiderImg}" style="width:100%; max-width:500px; margin: 20px auto;" /></div>
+      <div class="w-full flex justify-center">
+        <img src="${spiderImg}" style="width:100%; max-width:550px; max-height:300px; object-fit:contain; margin: 0 auto;" />
       </div>` : ''}
       
       ${barImg ? `
-      <div class="avoid-break mt-8">
-        <div class="flex justify-center"><img src="${barImg}" style="width:100%; max-width:500px; margin: 20px auto;" /></div>
+      <div class="w-full flex justify-center">
+        <img src="${barImg}" style="width:100%; max-width:450px; max-height:260px; object-fit:contain; margin: 0 auto;" />
+      </div>` : ''}
+
+      ${matrixImg ? `
+      <div class="w-full flex justify-center">
+        <img src="${matrixImg}" style="width:100%; max-width:400px; max-height:400px; aspect-ratio: 1/1; object-fit:contain; margin: 0 auto;" />
       </div>` : ''}
     </div>
   </div>
@@ -537,6 +547,31 @@ export default function App() {
       id: cat.id
     }));
   }, [confidence]);
+
+  const scatterData = useMemo(() => {
+    return categories.map(cat => {
+      let total = 0;
+      let checked = 0;
+      cat.elements.forEach(el => {
+        el.instruments.forEach(inst => {
+          if (!checkedNietNodig[inst.id]) {
+            total++;
+            if (checkedDoeIk[inst.id]) checked++;
+          }
+        });
+      });
+      const inzetPercent = total > 0 ? Math.round((checked / total) * 100) : 0;
+      const confPercent = (confidence[cat.id] || 0) * 20;
+      return {
+        name: cat.name,
+        id: cat.id,
+        x: inzetPercent,
+        y: confPercent,
+        z: total,
+        fill: getCategoryColorHex(cat.id)
+      };
+    });
+  }, [checkedDoeIk, checkedNietNodig, confidence]);
 
   const totalInstruments = categories.reduce((acc, cat) => acc + cat.elements.reduce((eAcc, el) => eAcc + el.instruments.filter(i => !checkedNietNodig[i.id]).length, 0), 0);
   const totalDoeIk = Object.values(checkedDoeIk).filter(Boolean).length;
@@ -880,16 +915,15 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 text-center shadow-sm flex flex-col justify-center transition-colors">
                   <div className="text-4xl font-black text-emerald-600 dark:text-emerald-400">{totalDoeIk} <span className="text-2xl text-emerald-400 dark:text-emerald-600">/ {totalInstruments}</span></div>
-                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase tracking-wider mt-2">Ingezet ("Doen we")</div>
+                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase tracking-wider mt-2">Ingezet</div>
                 </div>
                 <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800 text-center shadow-sm flex flex-col justify-center transition-colors">
                   <div className="text-4xl font-black text-amber-600 dark:text-amber-400">{totalVergtActie}</div>
-                  <div className="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wider mt-2">Vergt Actie</div>
+                  <div className="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wider mt-2">Op de agenda</div>
                 </div>
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 text-center shadow-sm flex flex-col justify-center transition-colors">
-                  <div className="text-4xl font-black text-blue-600 dark:text-blue-400">{avgConfidence} <span className="text-lg text-blue-400 dark:text-blue-600">/ 5</span></div>
-                  <div className="text-xs font-bold text-blue-700 dark:text-blue-500 uppercase tracking-wider mt-2">Gem. Vertrouwen</div>
-                  <div className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">Min: {minConf} | Max: {maxConf}</div>
+                <div className="bg-slate-50 dark:bg-slate-900/20 p-4 rounded-xl border border-slate-200 dark:border-slate-800 text-center shadow-sm flex flex-col justify-center transition-colors">
+                  <div className="text-4xl font-black text-slate-600 dark:text-slate-400">{totalNietNodig}</div>
+                  <div className="text-xs font-bold text-slate-700 dark:text-slate-500 uppercase tracking-wider mt-2">Niet nodig</div>
                 </div>
               </div>
               
@@ -989,6 +1023,48 @@ export default function App() {
                         ))}
                       </Bar>
                     </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Confidence Matrix */}
+              <div id="matrix-chart-container" className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors print:break-before-page">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Vertrouwensmatrix</h3>
+                <div className="w-full h-[450px]" id="matrix-chart">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
+                      <XAxis type="number" dataKey="x" name="Inzet" unit="%" domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: 'Inzet van instrumenten', position: 'insideBottom', offset: -25, fill: isDarkMode ? '#94a3b8' : '#475569' }} />
+                      <YAxis type="number" dataKey="y" name="Vertrouwen" unit="%" domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: 'Vertrouwen', angle: -90, position: 'insideLeft', offset: -10, fill: isDarkMode ? '#94a3b8' : '#475569' }} />
+                      <ZAxis type="number" dataKey="z" range={[100, 1000]} name="Aantal instrumenten" />
+                      <Tooltip cursor={{ strokeDasharray: '3 3' }} 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
+                                <p className="font-bold text-slate-800 dark:text-white mb-1">{data.name}</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">Inzet: {data.x}%</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">Vertrouwen: {data.y}%</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">Instrumenten: {data.z}</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <ReferenceLine x={50} stroke={isDarkMode ? '#475569' : '#94a3b8'} strokeDasharray="3 3" />
+                      <ReferenceLine y={50} stroke={isDarkMode ? '#475569' : '#94a3b8'} strokeDasharray="3 3" />
+                      <ReferenceArea x1={50} x2={100} y1={50} y2={100} fillOpacity={0} label={{ position: 'center', value: 'Hoog vertrouwen, Hoge inzet', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 12, fontWeight: 'bold' }} />
+                      <ReferenceArea x1={0} x2={50} y1={50} y2={100} fillOpacity={0} label={{ position: 'center', value: 'Hoog vertrouwen, Lage inzet', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 12, fontWeight: 'bold' }} />
+                      <ReferenceArea x1={50} x2={100} y1={0} y2={50} fillOpacity={0} label={{ position: 'center', value: 'Laag vertrouwen, Hoge inzet', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 12, fontWeight: 'bold' }} />
+                      <ReferenceArea x1={0} x2={50} y1={0} y2={50} fillOpacity={0} label={{ position: 'center', value: 'Laag vertrouwen, Lage inzet', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 12, fontWeight: 'bold' }} />
+                      <Scatter name="Categorieën" data={scatterData} isAnimationActive={false} onClick={(data) => scrollToCategory(data.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
+                        {scatterData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} className="cursor-pointer" />
+                        ))}
+                      </Scatter>
+                    </ScatterChart>
                   </ResponsiveContainer>
                 </div>
               </div>
