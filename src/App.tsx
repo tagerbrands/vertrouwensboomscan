@@ -210,22 +210,22 @@ export default function App() {
   </div>
 
   <!-- Page 4: Visuals -->
-  <div class="page-break p-8">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Visuele Weergave</h2>
-    <div class="space-y-4 flex flex-col items-center avoid-break">
+  <div class="page-break p-6 avoid-break">
+    <h2 class="text-2xl font-bold text-slate-900 mb-4 border-b-2 border-slate-200 pb-2">Visuele Weergave</h2>
+    <div class="flex flex-col items-center gap-4">
       ${spiderImg ? `
       <div class="w-full flex justify-center">
-        <img src="${spiderImg}" style="width:100%; max-width:550px; max-height:300px; object-fit:contain; margin: 0 auto;" />
+        <img src="${spiderImg}" style="width:100%; max-width:450px; max-height:250px; object-fit:contain; margin: 0 auto;" />
       </div>` : ''}
       
       ${barImg ? `
       <div class="w-full flex justify-center">
-        <img src="${barImg}" style="width:100%; max-width:450px; max-height:260px; object-fit:contain; margin: 0 auto;" />
+        <img src="${barImg}" style="width:100%; max-width:450px; max-height:250px; object-fit:contain; margin: 0 auto;" />
       </div>` : ''}
 
       ${matrixImg ? `
       <div class="w-full flex justify-center">
-        <img src="${matrixImg}" style="width:100%; max-width:400px; max-height:400px; aspect-ratio: 1/1; object-fit:contain; margin: 0 auto;" />
+        <img src="${matrixImg}" style="width:100%; max-width:300px; max-height:300px; aspect-ratio: 1/1; object-fit:contain; margin: 0 auto;" />
       </div>` : ''}
     </div>
   </div>
@@ -343,7 +343,7 @@ export default function App() {
 
   <!-- Footer / Colofon -->
   <div class="mt-16 pt-8 border-t border-slate-200 text-center text-sm text-slate-500 pb-8">
-    <p class="mb-2">De Vertrouwensboom, Tim Gerbrands, 2025</p>
+    <p class="mb-2">De Vertrouwensboom, <a href="https://www.linkedin.com/in/tim-gerbrands" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Tim A. Gerbrands</a>, 2025</p>
   </div>
 
   <script>
@@ -1179,7 +1179,7 @@ export default function App() {
       {/* Colofon */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 print:mt-8 print:py-4 transition-colors">
         <p className="mb-1">
-          <strong className="dark:text-slate-300">Auteur:</strong> <span className="dark:text-slate-400">Tim Gerbrands</span> &nbsp;|&nbsp; <strong className="dark:text-slate-300">Laatst bijgewerkt:</strong> <span className="dark:text-slate-400">{new Date().toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+          <strong className="dark:text-slate-300">Auteur:</strong> <a href="https://www.linkedin.com/in/tim-gerbrands" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Tim A. Gerbrands</a> &nbsp;|&nbsp; <strong className="dark:text-slate-300">Laatst bijgewerkt:</strong> <span className="dark:text-slate-400">{new Date().toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </p>
         <p>
           <strong className="dark:text-slate-300">Publicatie over De Vertrouwensboom:</strong>{' '}
