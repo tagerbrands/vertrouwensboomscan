@@ -225,7 +225,7 @@ export default function App() {
 
       ${matrixImg ? `
       <div class="w-full flex justify-center">
-        <img src="${matrixImg}" style="width:100%; max-width:450px; max-height:350px; object-fit:contain; margin: 0 auto;" />
+        <img src="${matrixImg}" style="width:100%; max-width:450px; max-height:250px; object-fit:contain; margin: 0 auto;" />
       </div>` : ''}
     </div>
   </div>
@@ -1028,10 +1028,11 @@ export default function App() {
               </div>
 
               {/* Confidence Matrix */}
-              <div id="matrix-chart-container" className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors print:break-before-page">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Zones van vertrouwen</h3>
-                <div className="w-full h-[450px]" id="matrix-chart">
-                  <ResponsiveContainer width="100%" height="100%">
+              <div className="lg:col-span-2 flex justify-center">
+                <div id="matrix-chart-container" className="w-full lg:w-[calc(50%-1rem)] bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors print:break-before-page">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Zones van vertrouwen</h3>
+                  <div className="w-full h-[350px]" id="matrix-chart">
+                    <ResponsiveContainer width="100%" height="100%">
                     <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
                       <XAxis type="number" dataKey="x" name="Inzet" domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: 'Inzet van instrumenten (%)', position: 'insideBottom', offset: -25, fill: isDarkMode ? '#94a3b8' : '#475569' }} />
@@ -1069,6 +1070,7 @@ export default function App() {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </section>
 
