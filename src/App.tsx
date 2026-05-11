@@ -762,7 +762,7 @@ export default function App() {
 
               <div className="prose prose-slate dark:prose-invert prose-lg max-w-none mt-8 text-slate-700 dark:text-slate-300">
                 <p>
-                  {isEnglish ? 'The main starting point is confidence' : 'Het voornaamste uitgangspunt is het vertrouwen'} dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten.
+                  {isEnglish ? "The primary starting point is the trust that the examination board derives from quality assurance. This trust forms the basis for its actions. The board continuously evaluates its level of confidence and intervenes when this confidence is insufficient or at risk of declining. Therefore, it is essential to have a clear view of the full range of assurance instruments, allowing for an integrated and objectively substantiated judgment upon which both trust and corrective actions can be based." : "Het voornaamste uitgangspunt is het vertrouwen dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten."}
                 </p>
               </div>
             </div>
@@ -1134,26 +1134,27 @@ export default function App() {
                   {tLang.interpretatieText}
                 </p>
                 <div className="flex-1 flex flex-col justify-center">
-                  <table className="w-full text-sm text-left">
-                    <tbody>
-                      <tr className="border-b border-slate-200 dark:border-slate-700">
-                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.opOrde}</td>
-                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.opOrdeDesc}</td>
-                      </tr>
-                      <tr className="border-b border-slate-200 dark:border-slate-700">
-                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.blindeVlekken}</td>
-                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.blindeVlekkenDesc}</td>
-                      </tr>
-                      <tr className="border-b border-slate-200 dark:border-slate-700">
-                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.grijpIn}</td>
-                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.grijpInDesc}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.onvoldoende}</td>
-                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.onvoldoendeDesc}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.blindeVlekken}</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.blindeVlekkenDesc}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.opOrde}</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.opOrdeDesc}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.onvoldoende}</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.onvoldoendeDesc}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.grijpIn}</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.grijpInDesc}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mt-4">
+                    {tLang.interpretatieTextBottom}
+                  </p>
                 </div>
               </div>
             </div>
