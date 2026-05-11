@@ -138,7 +138,7 @@ export default function App() {
     <h1 class="text-5xl font-extrabold text-slate-900 mb-8">${tLang.title}</h1>
     <img src="./vertrouwensboom.png" alt="${tLang.title}" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
     <h2 class="text-2xl font-medium text-slate-600">${tLang.subtitle}</h2>
-    <div class="absolute bottom-12 text-slate-400 font-medium">${new Date().toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+    <div class="absolute bottom-12 text-slate-400 font-medium">${new Date().toLocaleDateString(isEnglish ? 'en-US' : 'nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
   </div>
 
   <!-- Page 2: Theorie -->
@@ -146,7 +146,7 @@ export default function App() {
     <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2 text-center">${tLang.uitgangspunten}</h2>
     <div class="prose prose-slate prose-lg max-w-none text-slate-700">
       <p class="mb-8">
-        De Vertrouwensboom biedt Examencommissies een specifiek en praktisch overzicht van borgingsinstrumenten voor programmatisch toetsen. Het document beoogt examencommissies te voorzien van inspiratie bij de selectie van instrumenten om te komen tot een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem. Het helpt grip te houden op kwaliteit, bijsturing te onderbouwen en het verlenen van een graad te onderschrijven.
+        ${tLang.uitgangspuntenText}
       </p>
       
       <div class="bg-slate-100 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200 mt-8">
@@ -157,15 +157,15 @@ export default function App() {
         <ul class="list-none pl-0 space-y-4">
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span>{isEnglish ? <><strong>Assurance</strong> is the objective and systematic recording and demonstrable monitoring of the quality of assessment through measures and procedures</> : <><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</>}</span>
+            <span>${isEnglish ? '<strong>Assurance</strong> is the objective and systematic recording and demonstrable monitoring of the quality of assessment through measures and procedures.' : '<strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures'}</span>
           </li>
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span>{isEnglish ? <><strong>Assurance is successful</strong> when the systematic measurement of assessment quality leads to the necessary confidence within the examination board to endorse the conferring of a degree</> : <><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</>}</span>
+            <span>${isEnglish ? '<strong>Assurance is successful</strong> when the systematic measurement of assessment quality leads to the necessary confidence within the examination board to endorse the conferring of a degree.' : '<strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven'}</span>
           </li>
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span>{isEnglish ? <><strong>Assurance instruments</strong> provide an objective representation of the qualities of the educational and assessment system, enabling the examination board to form a reasoned judgment regarding its trust in this system</> : <><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</>}</span>
+            <span>${isEnglish ? '<strong>Assurance instruments</strong> provide an objective representation of the qualities of the educational and assessment system, enabling the examination board to form a reasoned judgment regarding its trust in this system.' : '<strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem'}</span>
           </li>
         </ul>
       </div>
