@@ -19,7 +19,7 @@ export interface Category {
   elements: Element[];
 }
 
-export const categories: Category[] = [
+export const categoriesNl: Category[] = [
   {
     id: "luk-kwaliteit",
     name: "LUK-kwaliteit",
@@ -234,3 +234,221 @@ export const categories: Category[] = [
     ]
   }
 ];
+
+export const categoriesEn: Category[] = [
+  {
+    id: "luk-kwaliteit",
+    name: "LUK Quality",
+    colorClass: "bg-rose-50 dark:bg-rose-900/40",
+    containerColorClass: "bg-rose-50/30 dark:bg-rose-900/10",
+    textColorClass: "text-rose-700 dark:text-rose-300",
+    borderColorClass: "border-rose-200 dark:border-rose-800/50",
+    elements: [
+      {
+        name: "Formulation",
+        description: "Clear, testable formulations of LUKs aligned with the appropriate level within the curriculum. Rubrics make criteria concrete and measurable.",
+        instruments: [
+          { id: "i1", text: "Validate whether (developments of) the LUKs meet the applicable NVAO quality requirements: tuning, level, taxonomy." }
+        ]
+      },
+      {
+        name: "BOKS(AE)",
+        description: "Body of Knowledge, Skills (and Attitude & Ethics), formulated based on the professional competency profile.",
+        instruments: [
+          { id: "i2", text: "Test whether the LUKs demonstrably cover the BOKS(AE) and if the relationship is comprehensively included in the Self-evaluation and Reflection (ZER) for accreditation." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "portfoliocriteria",
+    name: "Portfolio Criteria",
+    colorClass: "bg-orange-50 dark:bg-orange-900/40",
+    containerColorClass: "bg-orange-50/30 dark:bg-orange-900/10",
+    textColorClass: "text-orange-700 dark:text-orange-300",
+    borderColorClass: "border-orange-200 dark:border-orange-800/50",
+    elements: [
+      {
+        name: "Admissibility Criteria",
+        description: "Establishing requirements that do not fall under the LUKs, but are necessary to make correct decisions.",
+        instruments: [
+          { id: "i3", text: "Evaluate these criteria periodically to determine that they are 1) necessary, 2) do not lead to excessive burden on students, 3) are coherent with the LUKs and 4) contribute to the quality of decisions." }
+        ]
+      },
+      {
+        name: "VRAAKKT",
+        description: "Clear agreements about the application of the VRAAKKT criteria.",
+        instruments: [
+          { id: "i4", text: "Assess whether testing instructions regarding the application of VRAAKKT criteria are of sufficient quality." },
+          { id: "i5", text: "Verify whether VRAAKKT criteria are purely integrated into the decision procedure." }
+        ]
+      },
+      {
+        name: "Mandatory Evidence",
+        description: "Established evidence that forms a solid basis for assessment, influencing the quality of scaffolding, calibration, feedback processes, and decisions, among others.",
+        instruments: [
+          { id: "i6", text: "Analyze the design systematically in relation to assessment policy, didactic vision, and quality criteria, and observe the effect on the decision (risk of 'ticking the box' can disrupt the holistic nature)." },
+          { id: "i7", text: "Evaluate how students are informed about the influence of mandatory evidence on decisions." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "kaders-procedures",
+    name: "Frameworks & Procedures",
+    colorClass: "bg-amber-50 dark:bg-amber-900/40",
+    containerColorClass: "bg-amber-50/30 dark:bg-amber-900/10",
+    textColorClass: "text-amber-700 dark:text-amber-300",
+    borderColorClass: "border-amber-200 dark:border-amber-800/50",
+    elements: [
+      {
+        name: "Evidence (Low stake)",
+        description: "Integration of evidence and related feedback into the educational design, according to the principles of constructive alignment.",
+        instruments: [
+          { id: "i8", text: "Establish that evidence is designed in relation to quality criteria, how it is collected, and how feedback on it is generated and recorded." },
+          { id: "i9", text: "Periodically and selectively oversee the execution of established low-stake procedures." }
+        ]
+      },
+      {
+        name: "Prior Acquired Evidence (EVB)",
+        description: "Guidelines for handling evidence generated outside the direct supervision of the program.",
+        instruments: [
+          { id: "i10", text: "Test whether the EVB procedure guarantees the quality and authenticity of external evidence." },
+          { id: "i11", text: "Periodically and selectively oversee the execution of established EVB procedures." }
+        ]
+      },
+      {
+        name: "Interim Evaluation (Medium stake)",
+        description: "Feedback moments halfway through the learning trajectory that provide insight into progress towards the LUKs. The portfolio is viewed holistically.",
+        instruments: [
+          { id: "i12", text: "Verify whether the status of this assessment in relation to the decision is transparent to all actors." },
+          { id: "i13", text: "Validate whether assessment criteria in relation to the holistic judgment are transparent to all actors." },
+          { id: "i14", text: "Periodically and selectively oversee the execution of established medium-stake procedures." }
+        ]
+      },
+      {
+        name: "Decision (High stake)",
+        description: "The final decision-making process determining whether a student meets the assessment criteria.",
+        instruments: [
+          { id: "i15", text: "Test whether the decision procedure provides a grip on role division, the degree of (in)dependence of assessors, and the application of the four-eyes principle." },
+          { id: "i16", text: "Assess whether the decision procedure meets all requirements (in accordance with OER, examiner actions, remediation, etc.)." },
+          { id: "i17", text: "Assess whether testing instructions and any rubrics are of sufficient quality." },
+          { id: "i18", text: "Periodically and selectively oversee the execution of established high-stake procedures." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "organisatie",
+    name: "Organization",
+    colorClass: "bg-emerald-50 dark:bg-emerald-900/40",
+    containerColorClass: "bg-emerald-50/30 dark:bg-emerald-900/10",
+    textColorClass: "text-emerald-700 dark:text-emerald-300",
+    borderColorClass: "border-emerald-200 dark:border-emerald-800/50",
+    elements: [
+      {
+        name: "Governance",
+        description: "The distribution of roles, tasks, and responsibilities within the education and assessment system.",
+        instruments: [
+          { id: "i19", text: "Systematically analyze whether tasks and responsibilities are assigned to the right roles, whether it is clear how roles collaborate and relate to each other, with what mandate they operate, and whether facilitation is adequate." },
+          { id: "i20", text: "Periodically evaluate whether actors consistently act according to their responsibilities." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "profiel-examinatoren",
+    name: "Examiner Profile",
+    colorClass: "bg-blue-50 dark:bg-blue-900/40",
+    containerColorClass: "bg-blue-50/30 dark:bg-blue-900/10",
+    textColorClass: "text-blue-700 dark:text-blue-300",
+    borderColorClass: "border-blue-200 dark:border-blue-800/50",
+    elements: [
+      {
+        name: "Certification",
+        description: "Examiners must possess the correct qualifications (e.g., BKE, master's) matching the assessment task.",
+        instruments: [
+          { id: "i21", text: "Periodically verify whether certification is appropriate and up-to-date concerning the task (e.g., via HR systems)." }
+        ]
+      },
+      {
+        name: "Professionalization",
+        description: "Structural further education, training, and intervision to guarantee the expertise and integrity of examiners.",
+        instruments: [
+          { id: "i22", text: "Set requirements for structural professionalization, monitor intervision and training attendance, assess facilitation." },
+          { id: "i23", text: "Oversee structural scheduling and attendance of calibration sessions." }
+        ]
+      },
+      {
+        name: "Calibration",
+        description: "Structural calibration sessions to standardize the interpretation of LUKs and expectations regarding admissibility criteria, leading to consistent decision-making.",
+        instruments: [
+          { id: "i24", text: "Selectively oversee the execution of the calibration procedure, inc. the quality and application of supporting materials (like a guide)." },
+          { id: "i25", text: "Assess whether documentation and communication about the achieved consensus are of sufficient quality." },
+          { id: "i26", text: "Verify the quality of calibration via selective re-assessments." }
+        ]
+      },
+      {
+        name: "Feedback Literacy",
+        description: "Examiners must be able to interpret both the content and quality of feedback (interpreting feedback) and provide clear, substantiated feedback.",
+        instruments: [
+          { id: "i27", text: "Validate the quality and application of supporting materials (such as a guide)." },
+          { id: "i28", text: "Systematically analyze the quality of providing feedback, e.g., via an analysis of the application of feedback models, examiner and student evaluations, and requests for reassessment where feedback quality is at issue." },
+          { id: "i29", text: "Test the quality of interpreting feedback, e.g., via the use of reassessments on high-risk final works." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "digitale-systemen",
+    name: "Digital Systems",
+    colorClass: "bg-purple-50 dark:bg-purple-900/40",
+    containerColorClass: "bg-purple-50/30 dark:bg-purple-900/10",
+    textColorClass: "text-purple-700 dark:text-purple-300",
+    borderColorClass: "border-purple-200 dark:border-purple-800/50",
+    elements: [
+      {
+        name: "Authenticity Check",
+        description: "Digital systems must allow for a robust check on the authenticity of evidence and feedback.",
+        instruments: [
+          { id: "i30", text: "Periodically evaluate whether procedures for documentation of evidence and feedback are possible (in relation to the application of VRAAKKT criteria, linking evidence to feedback, etc.)." }
+        ]
+      },
+      {
+        name: "External Validation",
+        description: "Possibility for external experts to assess the quality of testing and perform an independent quality check, even after the student's deregistration.",
+        instruments: [
+          { id: "i31", text: "Systematically analyze whether external validation of portfolios is set up, with attention to privacy and data security." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "fraudebeleid",
+    name: "Fraud Policy",
+    colorClass: "bg-fuchsia-50 dark:bg-fuchsia-900/40",
+    containerColorClass: "bg-fuchsia-50/30 dark:bg-fuchsia-900/10",
+    textColorClass: "text-fuchsia-700 dark:text-fuchsia-300",
+    borderColorClass: "border-fuchsia-200 dark:border-fuchsia-800/50",
+    elements: [
+      {
+        name: "Information, Prevention & Reporting",
+        description: "Integral fraud policy aimed at preventing and early signaling of fraud by informing those involved, avoiding incentives, and utilizing detection for guidance rather than punishment.",
+        instruments: [
+          { id: "i32", text: "Assess how fraud prevention and information provision are structurally integrated into the curriculum." },
+          { id: "i33", text: "Periodically instruct relevant actors about the procedure for reporting suspected fraud." }
+        ]
+      },
+      {
+        name: "Investigation & Sanctioning",
+        description: "After a fraud report, an investigation is initiated that is pedagogically structured, aiming to support the student's learning process rather than to punish.",
+        instruments: [
+          { id: "i34", text: "Design and implement a methodology for fraud investigation that serves its purpose, and evaluate this periodically." },
+          { id: "i35", text: "Transparently record a sanction ladder, and impose sanctions based on a clear contextual outline and substantiation." }
+        ]
+      }
+    ]
+  }
+];
+
+export const categories = categoriesNl;

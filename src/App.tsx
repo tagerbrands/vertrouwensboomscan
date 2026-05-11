@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import * as htmlToImage from 'html-to-image';
-import { categories, Category, Instrument } from './data';
+import { categoriesNl, categoriesEn, Category, Instrument } from './data';
+import { translations } from './translations';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine, ScatterChart, Scatter, ZAxis, ReferenceArea } from 'recharts';
-import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare, Moon, Sun } from 'lucide-react';
+import { ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Info, GripVertical, Download, Star, User, Calendar, MessageSquare, Moon, Sun, Languages } from 'lucide-react';
 
 // Helper to load state from localStorage
 const loadState = <T,>(key: string, defaultValue: T): T => {
@@ -58,6 +59,12 @@ export default function App() {
     return false;
   });
 
+  const [isEnglish, setIsEnglish] = useState<boolean>(() => loadState('borging_isEnglish', false));
+  const categories = isEnglish ? categoriesEn : categoriesNl;
+  const tLang = isEnglish ? translations.en : translations.nl;
+
+  useEffect(() => { localStorage.setItem('borging_isEnglish', JSON.stringify(isEnglish)); }, [isEnglish]);
+
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -67,6 +74,7 @@ export default function App() {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const toggleLanguage = () => setIsEnglish(!isEnglish);
 
   const handleGenerateReport = async (reportType: 'full' | 'results') => {
     // Capture charts first
@@ -100,10 +108,10 @@ export default function App() {
 
     const htmlContent = `
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="${isEnglish ? 'en' : 'nl'}">
 <head>
   <meta charset="UTF-8">
-  <title>Borgingsanalyse Vertrouwensboom</title>
+  <title>${tLang.title}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -127,43 +135,43 @@ export default function App() {
   ${reportType === 'full' ? `
   <!-- Page 1: Cover -->
   <div class="h-screen flex flex-col items-center justify-center relative p-8 text-center">
-    <h1 class="text-5xl font-extrabold text-slate-900 mb-8">De Vertrouwensboom: Borgingsanalyse</h1>
-    <img src="./vertrouwensboom.png" alt="De Vertrouwensboom" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
-    <h2 class="text-2xl font-medium text-slate-600">Een zelfscan van het borgende instrumentarium</h2>
+    <h1 class="text-5xl font-extrabold text-slate-900 mb-8">${tLang.title}</h1>
+    <img src="./vertrouwensboom.png" alt="${tLang.title}" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
+    <h2 class="text-2xl font-medium text-slate-600">${tLang.subtitle}</h2>
     <div class="absolute bottom-12 text-slate-400 font-medium">${new Date().toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
   </div>
 
   <!-- Page 2: Theorie -->
   <div class="page-break p-8">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2 text-center">Uitgangspunten</h2>
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2 text-center">${tLang.uitgangspunten}</h2>
     <div class="prose prose-slate prose-lg max-w-none text-slate-700">
       <p class="mb-8">
         De Vertrouwensboom biedt Examencommissies een specifiek en praktisch overzicht van borgingsinstrumenten voor programmatisch toetsen. Het document beoogt examencommissies te voorzien van inspiratie bij de selectie van instrumenten om te komen tot een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem. Het helpt grip te houden op kwaliteit, bijsturing te onderbouwen en het verlenen van een graad te onderschrijven.
       </p>
       
       <div class="bg-slate-100 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200 mt-8">
-        <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Borging is...</h3>
+        <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">${isEnglish ? 'Quality Assurance is...' : 'Borging is...'}</h3>
         <p class="mb-6">
-          De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:
+          ${isEnglish ? "The term 'assurance' (borging) is not defined in the Higher Education and Research Act (WHW). Since an assessment system is never 100% foolproof, it is useful to define the term clearly and place it within the context of its purpose:" : "De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:"}
         </p>
         <ul class="list-none pl-0 space-y-4">
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</span>
+            <span>{isEnglish ? <><strong>Assurance</strong> is the objective and systematic recording and demonstrable monitoring of the quality of assessment through measures and procedures</> : <><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</>}</span>
           </li>
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</span>
+            <span>{isEnglish ? <><strong>Assurance is successful</strong> when the systematic measurement of assessment quality leads to the necessary confidence within the examination board to endorse the conferring of a degree</> : <><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</>}</span>
           </li>
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</span>
+            <span>{isEnglish ? <><strong>Assurance instruments</strong> provide an objective representation of the qualities of the educational and assessment system, enabling the examination board to form a reasoned judgment regarding its trust in this system</> : <><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</>}</span>
           </li>
         </ul>
       </div>
 
       <p class="mt-8">
-        Het voornaamste uitgangspunt is het vertrouwen dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten.
+        ${isEnglish ? "The primary starting point is the trust that the examination board derives from quality assurance. This trust forms the basis for its actions. The board continuously evaluates its level of confidence and intervenes when this confidence is insufficient or at risk of declining. Therefore, it is essential to have a clear view of the full range of assurance instruments, allowing for an integrated and objectively substantiated judgment upon which both trust and corrective actions can be based." : "Het voornaamste uitgangspunt is het vertrouwen dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten."}
       </p>
     </div>
   </div>
@@ -171,23 +179,23 @@ export default function App() {
 
   <!-- Page 3: Resultaten -->
   <div class="${reportType === 'full' ? 'page-break' : ''} p-8">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Totaalbeeld Borging</h2>
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">${isEnglish ? 'Overall Assurance' : 'Totaalbeeld Borging'}</h2>
     <div class="grid grid-cols-3 gap-6 mb-8">
       <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 text-center">
         <div class="text-5xl font-black text-emerald-600">${totalDoeIk} <span class="text-2xl text-emerald-400">/ ${totalInstruments}</span></div>
-        <div class="text-sm font-bold text-emerald-700 uppercase tracking-wider mt-2">Ingezet</div>
+        <div class="text-sm font-bold text-emerald-700 uppercase tracking-wider mt-2">${isEnglish ? 'Deployed' : 'Ingezet'}</div>
       </div>
       <div class="bg-amber-50 p-6 rounded-xl border border-amber-200 text-center">
         <div class="text-5xl font-black text-amber-600">${totalVergtActie}</div>
-        <div class="text-sm font-bold text-amber-700 uppercase tracking-wider mt-2">Op de agenda</div>
+        <div class="text-sm font-bold text-amber-700 uppercase tracking-wider mt-2">${isEnglish ? 'On agenda' : 'Op de agenda'}</div>
       </div>
       <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
         <div class="text-5xl font-black text-slate-600">${totalNietNodig}</div>
-        <div class="text-sm font-bold text-slate-700 uppercase tracking-wider mt-2">Niet nodig</div>
+        <div class="text-sm font-bold text-slate-700 uppercase tracking-wider mt-2">${isEnglish ? 'Not needed' : 'Niet nodig'}</div>
       </div>
     </div>
     
-    <h3 class="text-xl font-bold text-slate-800 mb-4">Borgingsgraad per Categorie</h3>
+    <h3 class="text-xl font-bold text-slate-800 mb-4">${tLang.borgingsgraad}</h3>
     <div class="space-y-4">
       ${categories.map(category => {
         const catInstruments = category.elements.flatMap(e => e.instruments);
@@ -211,7 +219,7 @@ export default function App() {
 
   <!-- Page 4: Visuals -->
   <div class="page-break p-6 avoid-break">
-    <h2 class="text-2xl font-bold text-slate-900 mb-4 border-b-2 border-slate-200 pb-2">Visuele Weergave</h2>
+    <h2 class="text-2xl font-bold text-slate-900 mb-4 border-b-2 border-slate-200 pb-2">${isEnglish ? 'Visual Representation' : 'Visuele Weergave'}</h2>
     <div class="flex flex-col items-center gap-3">
       ${spiderImg ? `
       <div class="w-full flex justify-center">
@@ -232,21 +240,21 @@ export default function App() {
 
   <!-- Page 5: Agenda & Punten -->
   <div class="page-break p-8">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Borgingsagenda & Aandachtspunten</h2>
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">${isEnglish ? 'Assurance Agenda & Points of Attention' : 'Borgingsagenda & Aandachtspunten'}</h2>
     
     <div class="mb-8">
       <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
         <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        Borgingsagenda (Vergt Actie)
+        ${isEnglish ? 'Quality Assurance Agenda (Action required)' : 'Borgingsagenda'}
       </h3>
       ${borgingsagenda.length > 0 ? `
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-slate-100">
-            <th class="p-3 border border-slate-200 font-bold text-sm">Categorie</th>
-            <th class="p-3 border border-slate-200 font-bold text-sm">Instrument</th>
-            <th class="p-3 border border-slate-200 font-bold text-sm w-32">Eigenaar</th>
-            <th class="p-3 border border-slate-200 font-bold text-sm w-32">Deadline</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm">${isEnglish ? 'Category' : 'Categorie'}</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm">${isEnglish ? 'Instrument' : 'Instrument'}</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm w-32">${isEnglish ? 'Owner' : 'Eigenaar'}</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm w-32">${isEnglish ? 'Deadline' : 'Deadline'}</th>
           </tr>
         </thead>
         <tbody>
@@ -260,20 +268,20 @@ export default function App() {
           `).join('')}
         </tbody>
       </table>
-      ` : '<p class="text-slate-500 italic">Geen actiepunten geselecteerd.</p>'}
+      ` : `<p class="text-slate-500 italic">${isEnglish ? 'No action items selected.' : 'Geen actiepunten geselecteerd.'}</p>`}
     </div>
 
     <div class="page-break">
       <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
         <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        Aandachtspunten (Niet ingezet)
+        ${isEnglish ? 'Points of Attention (Not deployed)' : 'Aandachtspunten'}
       </h3>
       ${aandachtspunten.length > 0 ? `
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-slate-100">
-            <th class="p-3 border border-slate-200 font-bold text-sm w-1/4">Categorie</th>
-            <th class="p-3 border border-slate-200 font-bold text-sm">Instrument</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm w-1/4">${isEnglish ? 'Category' : 'Categorie'}</th>
+            <th class="p-3 border border-slate-200 font-bold text-sm">${isEnglish ? 'Instrument' : 'Instrument'}</th>
           </tr>
         </thead>
         <tbody>
@@ -285,14 +293,14 @@ export default function App() {
           `).join('')}
         </tbody>
       </table>
-      ` : '<p class="text-slate-500 italic">Geen aandachtspunten. U zet alle instrumenten in!</p>'}
+      ` : `<p class="text-slate-500 italic">${isEnglish ? 'No points of attention. You deploy all instruments!' : 'Geen aandachtspunten. U zet alle instrumenten in!'}</p>`}
     </div>
   </div>
 
   ${reportType === 'full' ? `
   <!-- Bijlage: Zelfscan -->
   <div class="page-break p-8">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">Bijlage: Volledige Zelfscan</h2>
+    <h2 class="text-3xl font-bold text-slate-900 mb-6 border-b-2 border-slate-200 pb-2">${isEnglish ? 'Appendix: Volledige Zelfscan' : 'Bijlage'}</h2>
     
     ${categories.map(category => `
       <div class="mb-8 avoid-break">
@@ -300,9 +308,9 @@ export default function App() {
         <table class="w-full text-left border-collapse mb-4">
           <thead>
             <tr class="bg-slate-100">
-              <th class="p-2 border border-slate-200 font-bold text-xs w-1/4">Element</th>
-              <th class="p-2 border border-slate-200 font-bold text-xs w-1/2">Instrument</th>
-              <th class="p-2 border border-slate-200 font-bold text-xs w-1/4 text-center">Status</th>
+              <th class="p-2 border border-slate-200 font-bold text-xs w-1/4">${isEnglish ? 'Element' : 'Element'}</th>
+              <th class="p-2 border border-slate-200 font-bold text-xs w-1/2">${isEnglish ? 'Instrument' : 'Instrument'}</th>
+              <th class="p-2 border border-slate-200 font-bold text-xs w-1/4 text-center">${isEnglish ? 'Status' : 'Status'}</th>
             </tr>
           </thead>
           <tbody>
@@ -313,10 +321,10 @@ export default function App() {
                 const isNietNodig = checkedNietNodig[instrument.id];
                 
                 let statusHtml = '';
-                if (isNietNodig) statusHtml = '<span class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded font-medium">Niet nodig</span>';
+                if (isNietNodig) statusHtml = '<span class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded font-medium">' + (isEnglish ? 'Not needed' : 'Niet nodig') + '</span>';
                 else {
-                  if (isDoeIk) statusHtml += '<div class="mb-1"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded font-medium inline-block whitespace-nowrap">Doen we</span></div>';
-                  if (isVergtActie) statusHtml += '<div><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded font-medium inline-block whitespace-nowrap">Vergt actie</span></div>';
+                  if (isDoeIk) statusHtml += '<div class="mb-1"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded font-medium inline-block whitespace-nowrap">' + (isEnglish ? 'We do this' : 'Doen we') + '</span></div>';
+                  if (isVergtActie) statusHtml += '<div><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded font-medium inline-block whitespace-nowrap">' + (isEnglish ? 'Requires action' : 'Vergt actie') + '</span></div>';
                   if (!isDoeIk && !isVergtActie) statusHtml = '<span class="text-slate-400 text-xs italic">-</span>';
                 }
 
@@ -401,7 +409,10 @@ export default function App() {
   };
 
   const handleConfidenceChange = (categoryId: string, value: number) => {
-    setConfidence(prev => ({ ...prev, [categoryId]: value }));
+    setConfidence(prev => ({ 
+      ...prev, 
+      [categoryId]: prev[categoryId] === value ? 0 : value 
+    }));
   };
 
   const moveAgendaItem = (index: number, direction: 'up' | 'down') => {
@@ -460,7 +471,7 @@ export default function App() {
       });
     });
     return points;
-  }, [checkedDoeIk, checkedNietNodig]);
+  }, [checkedDoeIk, checkedNietNodig, categories]);
 
   const borgingsagenda = useMemo(() => {
     const items: { category: Category; element: any; instrument: Instrument }[] = [];
@@ -517,7 +528,7 @@ export default function App() {
     }
 
     return items;
-  }, [checkedVergtActie, agendaOrder, showActionDetails, actionDetails]);
+  }, [checkedVergtActie, agendaOrder, showActionDetails, actionDetails, categories]);
 
   const radarData = useMemo(() => {
     return categories.map(cat => {
@@ -537,16 +548,16 @@ export default function App() {
         fullMark: 100,
       };
     });
-  }, [checkedDoeIk, checkedNietNodig]);
+  }, [checkedDoeIk, checkedNietNodig, categories]);
 
   const barData = useMemo(() => {
     return categories.map(cat => ({
       name: cat.name,
-      Vertrouwen: (confidence[cat.id] || 0) * 20,
+      [tLang.vertrouwen.replace(':', '')]: (confidence[cat.id] || 0) * 20,
       fill: getCategoryColorHex(cat.id),
       id: cat.id
     }));
-  }, [confidence]);
+  }, [confidence, tLang.vertrouwen, categories]);
 
   const scatterData = useMemo(() => {
     return categories.map(cat => {
@@ -571,7 +582,7 @@ export default function App() {
         fill: getCategoryColorHex(cat.id)
       };
     });
-  }, [checkedDoeIk, checkedNietNodig, confidence]);
+  }, [checkedDoeIk, checkedNietNodig, confidence, categories]);
 
   const totalInstruments = categories.reduce((acc, cat) => acc + cat.elements.reduce((eAcc, el) => eAcc + el.instruments.filter(i => !checkedNietNodig[i.id]).length, 0), 0);
   const totalDoeIk = Object.values(checkedDoeIk).filter(Boolean).length;
@@ -616,37 +627,84 @@ export default function App() {
     return <circle cx={cx} cy={cy} r={5} fill={color} stroke="#fff" strokeWidth={2} />;
   };
 
+  const renderScatterNode = useCallback((props: any) => {
+    const { cx, cy, fill, payload } = props;
+    const r = props.node?.r || props.r || 10;
+    const { x, y } = payload;
+    
+    // blinde vlekken (x<50, y>=50) of onvoldoende (x<50, y<50)
+    const hasRightArrow = x < 50;
+    // Grijp in (x>=50, y<50)
+    const hasUpArrow = x >= 50 && y < 50;
+
+    return (
+      <g className="cursor-pointer hover:opacity-80 transition-opacity" onClick={() => scrollToCategory(payload.id)}>
+        <circle cx={cx} cy={cy} r={r} fill={fill} stroke={isDarkMode ? '#1e293b' : '#ffffff'} strokeWidth={1} opacity={0.8} />
+        {hasRightArrow && (
+          <path d={`M ${cx + r} ${cy} L ${cx + r + 15} ${cy} M ${cx + r + 10} ${cy - 5} L ${cx + r + 15} ${cy} L ${cx + r + 10} ${cy + 5}`} fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+        )}
+        {hasUpArrow && (
+          <path d={`M ${cx} ${cy - r} L ${cx} ${cy - r - 15} M ${cx - 5} ${cy - r - 10} L ${cx} ${cy - r - 15} L ${cx + 5} ${cy - r - 10}`} fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+        )}
+      </g>
+    );
+  }, [isDarkMode]);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans pb-20 transition-colors">
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm py-4 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-4">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white text-center">De Vertrouwensboom: Borgingsanalyse</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white text-center">{tLang.title}</h1>
           
-          <div className="relative flex items-center justify-center w-full">
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center print:hidden">
+          <div className="flex items-center justify-between w-full mt-1">
+            <div className="flex items-center gap-2 print:hidden">
               <button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
-                title="Wissel Dark Mode"
+                title={tLang.wisselDarkMode}
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
+              <button
+                onClick={toggleLanguage}
+                className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors flex items-center justify-center min-w-[2.5rem]"
+                title={tLang.wisselTaal}
+              >
+                <span className="text-sm font-bold">{isEnglish ? 'NL' : 'EN'}</span>
+              </button>
             </div>
             <nav className="hidden md:flex space-x-8 items-center">
-              <a href="#theorie" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Theorie</a>
-              <a href="#zelfscan" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Zelfscan</a>
-              <a href="#resultaten" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Resultaten</a>
-              <a href="#agenda" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Agenda</a>
+              <a href="#theorie" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">{tLang.uitgangspunten}</a>
+              <a href="#zelfscan" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Scan</a>
+              <a href="#resultaten" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">{tLang.resultaten}</a>
+              <a href="#agenda" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">{tLang.agenda}</a>
             </nav>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2 print:hidden bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-              <button 
-                onClick={() => handleGenerateReport('full')}
-                className="flex items-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Exporteer analyse
-              </button>
+            <div className="hidden md:flex items-center print:hidden">
+              <div className="relative group bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                <button 
+                  className="flex items-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  {tLang.exportReport}
+                </button>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-right transform scale-95 group-hover:scale-100 z-50">
+                  <div className="p-1.5 flex flex-col gap-1">
+                    <button
+                      onClick={() => handleGenerateReport('full')}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors font-medium"
+                    >
+                      {tLang.exportFull}
+                    </button>
+                    <button
+                      onClick={() => handleGenerateReport('results')}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors font-medium"
+                    >
+                      {tLang.exportResults}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -658,40 +716,40 @@ export default function App() {
         <section id="theorie" className="space-y-8 scroll-mt-24">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12 transition-colors">
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-center">Uitgangspunten van De Vertrouwensboom</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-center">{isEnglish ? 'Principles of The Trust Tree' : 'Uitgangspunten van De Vertrouwensboom'}</h2>
               <div className="prose prose-slate dark:prose-invert prose-lg max-w-none text-slate-700 dark:text-slate-300">
                 <p>
-                  De Vertrouwensboom biedt Examencommissies een specifiek en praktisch overzicht van borgingsinstrumenten voor programmatisch toetsen. Het document beoogt examencommissies te voorzien van inspiratie bij de selectie van instrumenten om te komen tot een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem. Het helpt grip te houden op kwaliteit, bijsturing te onderbouwen en het verlenen van een graad te onderschrijven.
+                  {tLang.uitgangspuntenText}
                 </p>
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mt-8 print:break-before-page">
                 <div className="bg-slate-100 dark:bg-slate-700/50 rounded-xl p-6 md:p-8 flex flex-col justify-start border border-slate-200 dark:border-slate-600 transition-colors">
-                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center">Borging is...</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center">{isEnglish ? 'Quality Assurance is...' : 'Borging is...'}</h3>
                   <div className="relative w-full rounded-lg shadow-md bg-white dark:bg-slate-800 p-6 transition-colors flex-1">
                     <div className="prose prose-slate dark:prose-invert prose-lg max-w-none text-slate-700 dark:text-slate-300">
                       <p className="mb-6">
-                        De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:
+                        {isEnglish ? "The term 'assurance' (borging) is not defined in the Higher Education and Research Act (WHW). Since an assessment system is never 100% foolproof, it is useful to define the term clearly and place it within the context of its purpose:" : "De term 'borging' is in de WHW niet gedefinieerd. Omdat een toetssysteem nooit 100% waterdicht is, is het zinvol de term goed te definiëren en in de context van het doel te plaatsen:"}
                       </p>
                       <ul className="list-none pl-0 space-y-4">
                         <li className="flex items-start">
                           <span className="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-                          <span><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</span>
+                          <span>{isEnglish ? <><strong>Assurance</strong> is the objective and systematic recording and demonstrable monitoring of the quality of assessment through measures and procedures.</> : <><strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures</>}</span>
                         </li>
                         <li className="flex items-start">
                           <span className="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-                          <span><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</span>
+                          <span>{isEnglish ? <><strong>Assurance is successful</strong> when the systematic measurement of assessment quality leads to the necessary confidence within the examination board to endorse the conferring of a degree.</> : <><strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven</>}</span>
                         </li>
                         <li className="flex items-start">
                           <span className="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-                          <span><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</span>
+                          <span>{isEnglish ? <><strong>Assurance instruments</strong> provide an objective representation of the qualities of the educational and assessment system, enabling the examination board to form a reasoned judgment regarding its trust in this system.</> : <><strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem</>}</span>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
                 <div className="bg-slate-100 dark:bg-slate-700/50 rounded-xl p-6 md:p-8 flex flex-col items-center justify-start border border-slate-200 dark:border-slate-600 min-h-[300px] transition-colors">
-                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center w-full">De Vertrouwensboom</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center w-full">{isEnglish ? 'The Trust Tree' : 'De Vertrouwensboom'}</h3>
                   <div className="relative w-full overflow-hidden rounded-lg shadow-md bg-white dark:bg-slate-800 flex items-center justify-center transition-colors flex-1 p-6">
                     <img 
                       src="./vertrouwensboom.png" 
@@ -704,7 +762,7 @@ export default function App() {
 
               <div className="prose prose-slate dark:prose-invert prose-lg max-w-none mt-8 text-slate-700 dark:text-slate-300">
                 <p>
-                  Het voornaamste uitgangspunt is het vertrouwen dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten.
+                  {isEnglish ? 'The main starting point is confidence' : 'Het voornaamste uitgangspunt is het vertrouwen'} dat de examencommissie aan borging ontleent. Dit vertrouwen vormt de basis voor haar handelen. De commissie onderzoekt voortdurend haar mate van vertrouwen en grijpt in wanneer dit vertrouwen onvoldoende is of dreigt af te nemen. Daarom is het van belang om zicht te hebben op het volledige palet aan borgende instrumenten, zodat een integraal en objectief onderbouwd oordeel gevormd kan worden, waarop zowel vertrouwen als bijsturing kan berusten.
                 </p>
               </div>
             </div>
@@ -714,13 +772,12 @@ export default function App() {
         {/* Section 2: Self-Scan */}
         <section id="zelfscan" className="space-y-8 scroll-mt-24 print:break-before-page">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Zelfscan van het Instrumentarium</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{isEnglish ? 'Self-scan of the Toolkit' : 'Zelfscan van het Instrumentarium'}</h2>
             <p className="text-lg text-slate-600 dark:text-slate-300">
-              Geef aan welke instrumenten u hanteert en of actie vereist is (evt. door wie en wanneer).<br />
-              Geef per categorie uw vertrouwen aan en voeg evt. een opmerking toe.
+              {isEnglish ? <>Indicate which instruments you currently use and whether action is required.<br />Indicate your level of confidence per category and add a comment if necessary.</> : <>Geef aan welke instrumenten u hanteert en of actie vereist is (evt. door wie en wanneer).<br />Geef per categorie uw vertrouwen aan en voeg evt. een opmerking toe.</>}
             </p>
             <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden md:hidden">
-              Tip: in de desktopversie kun je de analyse opslaan.
+              {isEnglish ? 'Tip: in the desktop version you can save the analysis.' : 'Tip: in de desktopversie kun je de analyse opslaan.'}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 w-full">
@@ -733,19 +790,19 @@ export default function App() {
                 className="w-4 h-4 text-slate-900 dark:text-slate-100 rounded border-slate-300 dark:border-slate-600 focus:ring-slate-900 dark:focus:ring-slate-100 bg-white dark:bg-slate-800"
               />
               <label htmlFor="toggle-action-details" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
-                Actieplanning t.b.v. borgingsagenda in-/uitschakelen
+                {isEnglish ? 'Turn on/off the action planner' : 'Actieplanning t.b.v. borgingsagenda in-/uitschakelen'}
               </label>
             </div>
             <button 
               onClick={() => {
-                if(window.confirm('Weet u zeker dat u alle ingevulde gegevens wilt wissen?')) {
+                if(window.confirm(isEnglish ? 'Are you sure you want to clear all entered data?' : 'Weet u zeker dat u alle ingevulde gegevens wilt wissen?')) {
                   localStorage.clear();
                   window.location.reload();
                 }
               }}
               className="flex items-center gap-2 bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors print:hidden"
             >
-              Wis Gegevens
+              {isEnglish ? 'Clear entries' : 'Wis Gegevens'}
             </button>
           </div>
 
@@ -756,7 +813,7 @@ export default function App() {
                   <h3 className={`text-lg font-bold ${category.textColorClass}`}>{category.name}</h3>
                   
                   <div className="flex items-center gap-3 bg-white/60 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg backdrop-blur-sm">
-                    <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Vertrouwen:</span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{tLang.vertrouwen}</span>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map(rating => {
                         const isSelected = (confidence[category.id] || 0) >= rating;
@@ -814,7 +871,7 @@ export default function App() {
                                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
-                                    Doen we
+                                    {tLang.doenWe}
                                   </button>
                                   <button
                                     onClick={() => handleVergtActieChange(instrument.id)}
@@ -824,7 +881,7 @@ export default function App() {
                                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
-                                    Vergt actie
+                                    {tLang.vergtActie}
                                   </button>
                                   <button
                                     onClick={() => handleNietNodigChange(instrument.id)}
@@ -834,7 +891,7 @@ export default function App() {
                                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                                     }`}
                                   >
-                                    Niet nodig
+                                    {isEnglish ? 'Not needed' : 'Niet nodig'}
                                   </button>
                                 </div>
                               </div>
@@ -845,7 +902,7 @@ export default function App() {
                                     <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                     <input 
                                       type="text" 
-                                      placeholder="Eigenaar..." 
+                                      placeholder={isEnglish ? "Owner..." : "Eigenaar..."} 
                                       value={actionDetails[instrument.id]?.owner || ''}
                                       onChange={(e) => handleActionDetailChange(instrument.id, 'owner', e.target.value)}
                                       className="text-sm bg-transparent border-b border-slate-300 dark:border-slate-600 px-1 py-1 w-full focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
@@ -878,7 +935,7 @@ export default function App() {
                         className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1 font-medium transition-colors print:hidden"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        Voeg opmerking toe
+                        {isEnglish ? 'Add notes' : 'Voeg opmerking toe'}
                       </button>
                     ) : (
                       <div className="flex items-start gap-2">
@@ -902,28 +959,28 @@ export default function App() {
         {/* Section 3: Resultaten */}
         <section id="resultaten" className="space-y-8 scroll-mt-24 pt-8 border-t border-slate-200 dark:border-slate-700">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Resultaten</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{tLang.resultaten}</h2>
             <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden hidden md:block">
-              Sla de analyse bovenaan op via 'Exporteer analyse'.
+              {tLang.resultatenDesc}
             </p>
           </div>
 
           <div id="resultaten-content" className="space-y-8 bg-slate-50 dark:bg-slate-900 p-2 -m-2 rounded-xl transition-colors">
             {/* Infographic: Totaalbeeld */}
             <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6 text-center">Totaalbeeld Borging</h3>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6 text-center">{isEnglish ? 'Overall Assurance' : 'Totaalbeeld Borging'}</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 text-center shadow-sm flex flex-col justify-center transition-colors">
                   <div className="text-4xl font-black text-emerald-600 dark:text-emerald-400">{totalDoeIk} <span className="text-2xl text-emerald-400 dark:text-emerald-600">/ {totalInstruments}</span></div>
-                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase tracking-wider mt-2">Ingezet</div>
+                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase tracking-wider mt-2">{isEnglish ? 'Deployed' : 'Ingezet'}</div>
                 </div>
                 <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800 text-center shadow-sm flex flex-col justify-center transition-colors">
                   <div className="text-4xl font-black text-amber-600 dark:text-amber-400">{totalVergtActie}</div>
-                  <div className="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wider mt-2">Op de agenda</div>
+                  <div className="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wider mt-2">{isEnglish ? 'On agenda' : 'Op de agenda'}</div>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-900/20 p-4 rounded-xl border border-slate-200 dark:border-slate-800 text-center shadow-sm flex flex-col justify-center transition-colors">
                   <div className="text-4xl font-black text-slate-600 dark:text-slate-400">{totalNietNodig}</div>
-                  <div className="text-xs font-bold text-slate-700 dark:text-slate-500 uppercase tracking-wider mt-2">Niet nodig</div>
+                  <div className="text-xs font-bold text-slate-700 dark:text-slate-500 uppercase tracking-wider mt-2">{isEnglish ? 'Not needed' : 'Niet nodig'}</div>
                 </div>
               </div>
               
@@ -960,7 +1017,7 @@ export default function App() {
                         
                         {verbeterActies.length > 0 && (
                           <div className="text-xs text-slate-600 dark:text-slate-400 leading-snug pl-8 mt-2">
-                            <span className="font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider">Doen we niet:</span>
+                            <span className="font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider">{tLang.doenWeNiet}</span>
                             <ul className="list-disc pl-4 mt-1 space-y-1">
                               {verbeterActies.map(inst => (
                                 <li key={inst.id}>{inst.text}</li>
@@ -978,7 +1035,7 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:break-before-page print:break-inside-avoid">
               {/* Spider Chart */}
               <div id="spider-chart-container" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Inzet van Instrumenten (%)</h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">{tLang.inzetPerCat}</h3>
                 <div className="w-full h-[350px]" id="spider-chart">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -997,7 +1054,7 @@ export default function App() {
 
               {/* Bar Chart */}
               <div id="bar-chart-container" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Mate van vertrouwen (%)</h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">{tLang.vertrouwenPerCat}</h3>
                 <div className="w-full h-[350px]" id="bar-chart">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
@@ -1013,11 +1070,11 @@ export default function App() {
                       <YAxis domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} />
                       <Tooltip 
                         cursor={{fill: isDarkMode ? '#334155' : '#f8fafc'}} 
-                        formatter={(value) => [`${value}%`, 'Vertrouwen']} 
+                        formatter={(value) => [`${value}%`, tLang.vertrouwen.replace(':', '')]} 
                         contentStyle={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff', color: isDarkMode ? '#f8fafc' : '#0f172a', border: isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0', borderRadius: '8px' }}
                       />
                       <ReferenceLine y={Math.round((avgConfidence / 5) * 100) || 0} stroke={isDarkMode ? '#475569' : '#94a3b8'} strokeDasharray="3 3" strokeWidth={1} />
-                      <Bar dataKey="Vertrouwen" radius={[4, 4, 0, 0]} isAnimationActive={false} onClick={(data) => scrollToCategory(data.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
+                      <Bar dataKey={tLang.vertrouwen.replace(':', '')} radius={[4, 4, 0, 0]} isAnimationActive={false} onClick={(data) => scrollToCategory(data.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
                         {barData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
                         ))}
@@ -1027,17 +1084,17 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Confidence Matrix */}
-              <div className="lg:col-span-2 flex justify-center">
-                <div id="matrix-chart-container" className="w-full lg:w-[calc(50%-1rem)] bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors print:break-before-page">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Zones van vertrouwen</h3>
+              {/* Confidence Matrix & Eigenstandig oordeel */}
+              <div className="lg:col-span-2 flex flex-col lg:flex-row gap-8">
+                <div id="matrix-chart-container" className="flex-1 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors print:break-before-page">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">{tLang.zonesVanVertrouwen}</h3>
                   <div className="w-full h-[350px]" id="matrix-chart">
                     <ResponsiveContainer width="100%" height="100%">
                     <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#334155' : '#e2e8f0'} />
-                      <XAxis type="number" dataKey="x" name="Inzet" domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: 'Inzet van instrumenten (%)', position: 'insideBottom', offset: -25, fill: isDarkMode ? '#94a3b8' : '#475569' }} />
-                      <YAxis type="number" dataKey="y" name="Vertrouwen" domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: 'Vertrouwen (%)', angle: -90, position: 'insideLeft', offset: -10, fill: isDarkMode ? '#94a3b8' : '#475569' }} />
-                      <ZAxis type="number" dataKey="z" range={[100, 1000]} name="Aantal instrumenten" />
+                      <XAxis type="number" dataKey="x" name={tLang.inzet} domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: tLang.inzetPerCat, position: 'insideBottom', offset: -25, fill: isDarkMode ? '#94a3b8' : '#475569' }} />
+                      <YAxis type="number" dataKey="y" name={tLang.vertrouwen.replace(':','')} domain={[0, 100]} tick={{ fill: isDarkMode ? '#94a3b8' : '#475569' }} label={{ value: tLang.vertrouwenPerCat, angle: -90, position: 'insideLeft', offset: 0, textAnchor: 'middle', fill: isDarkMode ? '#94a3b8' : '#475569' }} />
+                      <ZAxis type="number" dataKey="z" range={[100, 1000]} name={tLang.aantalInstrumenten} />
                       <Tooltip cursor={{ strokeDasharray: '3 3' }} 
                         content={({ active, payload }) => {
                           if (active && payload && payload.length) {
@@ -1045,9 +1102,9 @@ export default function App() {
                             return (
                               <div className="bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
                                 <p className="font-bold text-slate-800 dark:text-white mb-1">{data.name}</p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300">Inzet: {data.x}%</p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300">Vertrouwen: {data.y}%</p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300">Instrumenten: {data.z}</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">{tLang.inzetZonderPercentage}: {data.x}%</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">{tLang.vertrouwen} {data.y}%</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">{tLang.aantalInstrumenten}: {data.z}</p>
                               </div>
                             );
                           }
@@ -1056,17 +1113,47 @@ export default function App() {
                       />
                       <ReferenceLine x={50} stroke={isDarkMode ? '#475569' : '#94a3b8'} strokeDasharray="3 3" />
                       <ReferenceLine y={50} stroke={isDarkMode ? '#475569' : '#94a3b8'} strokeDasharray="3 3" />
-                      <ReferenceArea x1={75} x2={100} y1={75} y2={100} fillOpacity={0} label={{ position: 'center', value: 'Op orde', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
-                      <ReferenceArea x1={0} x2={25} y1={75} y2={100} fillOpacity={0} label={{ position: 'center', value: 'Blinde vlekken?', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
-                      <ReferenceArea x1={75} x2={100} y1={0} y2={25} fillOpacity={0} label={{ position: 'center', value: 'Grijp in', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
-                      <ReferenceArea x1={0} x2={25} y1={0} y2={25} fillOpacity={0} label={{ position: 'center', value: 'Onvoldoende', fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
-                      <Scatter name="Categorieën" data={scatterData} isAnimationActive={false} onClick={(data) => scrollToCategory(data.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
+                      <ReferenceArea x1={75} x2={100} y1={75} y2={100} fillOpacity={0} label={{ position: 'center', value: tLang.opOrde, fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
+                      <ReferenceArea x1={0} x2={25} y1={75} y2={100} fillOpacity={0} label={{ position: 'center', value: tLang.blindeVlekken, fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
+                      <ReferenceArea x1={75} x2={100} y1={0} y2={25} fillOpacity={0} label={{ position: 'center', value: tLang.grijpIn, fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
+                      <ReferenceArea x1={0} x2={25} y1={0} y2={25} fillOpacity={0} label={{ position: 'center', value: tLang.onvoldoende, fill: isDarkMode ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold' }} />
+                      <Scatter name="Categorieën" data={scatterData} isAnimationActive={false} shape={renderScatterNode}>
                         {scatterData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} className="cursor-pointer" />
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
                         ))}
                       </Scatter>
                     </ScatterChart>
                   </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Interpretatie sectie */}
+              <div className="flex-1 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col transition-colors print:break-inside-avoid">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">{tLang.interpretatie}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+                  {tLang.interpretatieText}
+                </p>
+                <div className="flex-1 flex flex-col justify-center">
+                  <table className="w-full text-sm text-left">
+                    <tbody>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.opOrde}</td>
+                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.opOrdeDesc}</td>
+                      </tr>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.blindeVlekken}</td>
+                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.blindeVlekkenDesc}</td>
+                      </tr>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.grijpIn}</td>
+                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.grijpInDesc}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 pr-4 font-bold text-slate-800 dark:text-white whitespace-nowrap align-top">{tLang.onvoldoende}</td>
+                        <td className="py-3 text-slate-600 dark:text-slate-300 align-top">{tLang.onvoldoendeDesc}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -1079,7 +1166,7 @@ export default function App() {
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Agenda</h2>
             <p className="text-lg text-slate-600 dark:text-slate-300">
-              Overzicht van aandachtspunten en uw geprioriteerde borgingsagenda.
+              {tLang.agendaDesc}
             </p>
           </div>
 
@@ -1089,15 +1176,15 @@ export default function App() {
               <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700 transition-colors">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                  Borgingsagenda
+                  {tLang.borgingsagenda}
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instrumenten die actie vergen. Wijzig de volgorde om prioriteit aan te geven.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{isEnglish ? 'Instruments requiring action. Change the order to indicate priority.' : 'Instrumenten die actie vergen. Wijzig de volgorde om prioriteit aan te geven.'}</p>
               </div>
               <div className="p-6 flex-1 bg-slate-50/50 dark:bg-slate-900/20 transition-colors">
                 {borgingsagenda.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                     <Info className="w-12 h-12 mb-2 opacity-50" />
-                    <p>Geen actiepunten geselecteerd.</p>
+                    <p>{isEnglish ? 'No action items selected.' : 'Geen actiepunten geselecteerd.'}</p>
                   </div>
                 ) : (
                   <ul className="space-y-3">
@@ -1147,15 +1234,15 @@ export default function App() {
               <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700 transition-colors">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-amber-500" />
-                  Aandachtspunten
+                  {tLang.aandachtspunten}
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instrumenten die momenteel niet worden ingezet.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{isEnglish ? 'Instruments that are not currently in use.' : 'Instrumenten die momenteel niet worden ingezet.'}</p>
               </div>
               <div className="p-6 flex-1 bg-slate-50/50 dark:bg-slate-900/20 transition-colors">
                 {aandachtspunten.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                     <CheckCircle2 className="w-12 h-12 mb-2 text-emerald-400 dark:text-emerald-500" />
-                    <p>Geen aandachtspunten. U zet alle instrumenten in!</p>
+                    <p>{isEnglish ? 'No points of attention. You deploy all instruments!' : 'Geen aandachtspunten. U zet alle instrumenten in!'}</p>
                   </div>
                 ) : (
                   <ul className="space-y-4">
@@ -1181,10 +1268,10 @@ export default function App() {
       {/* Colofon */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 print:mt-8 print:py-4 transition-colors">
         <p className="mb-1">
-          <strong className="dark:text-slate-300">Auteur:</strong> <a href="https://www.linkedin.com/in/tim-gerbrands" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Tim A. Gerbrands</a> &nbsp;|&nbsp; <strong className="dark:text-slate-300">Laatst bijgewerkt:</strong> <span className="dark:text-slate-400">{new Date().toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+          <strong className="dark:text-slate-300">{tLang.auteur}</strong> <a href="https://www.linkedin.com/in/tim-gerbrands" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Tim A. Gerbrands</a> &nbsp;|&nbsp; <strong className="dark:text-slate-300">{isEnglish ? 'Edited last:' : 'Laatst bijgewerkt:'}</strong> <span className="dark:text-slate-400">{new Date().toLocaleDateString(isEnglish ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </p>
         <p>
-          <strong className="dark:text-slate-300">Publicatie over De Vertrouwensboom:</strong>{' '}
+          <strong className="dark:text-slate-300">{tLang.publicatie}</strong>{' '}
           <a 
             href="https://e-xamens.nl/februari-2026-01/" 
             target="_blank" 
