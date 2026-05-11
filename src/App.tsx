@@ -136,7 +136,7 @@ export default function App() {
   <!-- Page 1: Cover -->
   <div class="h-screen flex flex-col items-center justify-center relative p-8 text-center">
     <h1 class="text-5xl font-extrabold text-slate-900 mb-8">${tLang.title}</h1>
-    <img src="./vertrouwensboom.png" alt="${tLang.title}" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
+    <img src="${isEnglish ? './vertrouwensboom_EN.png' : './vertrouwensboom.png'}" alt="${tLang.title}" class="max-w-md w-full object-contain mb-8" onerror="this.style.display='none'" />
     <h2 class="text-2xl font-medium text-slate-600">${tLang.subtitle}</h2>
     <div class="absolute bottom-12 text-slate-400 font-medium">${new Date().toLocaleDateString(isEnglish ? 'en-US' : 'nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
   </div>
@@ -157,15 +157,15 @@ export default function App() {
         <ul class="list-none pl-0 space-y-4">
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span>${isEnglish ? '<strong>Assurance</strong> is the objective and systematic recording and demonstrable monitoring of the quality of assessment through measures and procedures.' : '<strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures'}</span>
+            <span>${isEnglish ? '<strong>Assurance</strong> is the objective and systematic recording and demonstrable monitoring of the quality of assessment through measures and procedures.' : '<strong>Borgen</strong> is het objectief en systematisch vastleggen en aantoonbaar bewaken van de kwaliteit van toetsing door middel van maatregelen en procedures.'}</span>
           </li>
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span>${isEnglish ? '<strong>Assurance is successful</strong> when the systematic measurement of assessment quality leads to the necessary confidence within the examination board to endorse the conferring of a degree.' : '<strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven'}</span>
+            <span>${isEnglish ? '<strong>Assurance is successful</strong> when the systematic measurement of assessment quality leads to the necessary confidence within the examination board to endorse the conferring of a degree.' : '<strong>Borging is succesvol</strong> als systematische meting van de kwaliteit van toetsing leidt tot het benodigde vertrouwen binnen de examencommissie om het verlenen van een graad te onderschrijven.'}</span>
           </li>
           <li class="flex items-start">
             <span class="text-blue-500 mr-3 font-black text-xl leading-snug">→</span>
-            <span>${isEnglish ? '<strong>Assurance instruments</strong> provide an objective representation of the qualities of the educational and assessment system, enabling the examination board to form a reasoned judgment regarding its trust in this system.' : '<strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem'}</span>
+            <span>${isEnglish ? '<strong>Assurance instruments</strong> provide an objective representation of the qualities of the educational and assessment system, enabling the examination board to form a reasoned judgment regarding its trust in this system.' : '<strong>Borgende instrumenten</strong> bieden een objectieve weergave van de kwaliteiten van het onderwijs- en toetssysteem, zodat de examencommissie een beredeneerd oordeel kan vormen over haar vertrouwen in dit systeem.'}</span>
           </li>
         </ul>
       </div>
@@ -716,7 +716,7 @@ export default function App() {
         <section id="theorie" className="space-y-8 scroll-mt-24">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12 transition-colors">
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-center">{isEnglish ? 'Principles of The Trust Tree' : 'Uitgangspunten van De Vertrouwensboom'}</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white text-center">{tLang.uitgangspunten}</h2>
               <div className="prose prose-slate dark:prose-invert prose-lg max-w-none text-slate-700 dark:text-slate-300">
                 <p>
                   {tLang.uitgangspuntenText}
@@ -752,7 +752,7 @@ export default function App() {
                   <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center w-full">{isEnglish ? 'The Trust Tree' : 'De Vertrouwensboom'}</h3>
                   <div className="relative w-full overflow-hidden rounded-lg shadow-md bg-white dark:bg-slate-800 flex items-center justify-center transition-colors flex-1 p-6">
                     <img 
-                      src="./vertrouwensboom.png" 
+                      src={isEnglish ? "./vertrouwensboom_EN.png" : "./vertrouwensboom.png"} 
                       alt="Vertrouwensboom" 
                       className="object-contain w-full h-full"
                     />

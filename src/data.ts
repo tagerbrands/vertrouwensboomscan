@@ -224,11 +224,11 @@ export const categoriesNl: Category[] = [
         ]
       },
       {
-        name: "Onderzoek & Sanctioneren",
+        name: "Onderzoek & Maatregelen",
         description: "Na een melding van fraude start een onderzoek dat pedagogisch is ingericht, met als doel het leerproces van de student te ondersteunen in plaats van te straffen.",
         instruments: [
           { id: "i34", text: "Ontwerp en implementeer een methodiek voor fraudeonderzoek die recht doet aan haar doel en evalueer deze periodiek." },
-          { id: "i35", text: "Leg een sanctieladder transparant vast, en sanctioneer a.d.h.v. een heldere contextschets en onderbouwing." }
+          { id: "i35", text: "Leg een maatregelenladder transparant vast, en neem maatregelen a.d.h.v. een heldere contextschets en onderbouwing." }
         ]
       }
     ]
@@ -276,11 +276,11 @@ export const categoriesEn: Category[] = [
         ]
       },
       {
-        name: "VRAAKKT",
-        description: "Clear agreements about the application of the VRAAKKT criteria.",
+        name: "VRAAQQT",
+        description: "Clear agreements about the application of the VRAAQQT criteria.",
         instruments: [
-          { id: "i4", text: "Assess whether testing instructions regarding the application of VRAAKKT criteria are of sufficient quality." },
-          { id: "i5", text: "Verify whether VRAAKKT criteria are purely integrated into the decision procedure." }
+          { id: "i4", text: "Assess whether testing instructions regarding the application of VRAAQQT criteria are of sufficient quality." },
+          { id: "i5", text: "Verify whether VRAAQQT criteria are purely integrated into the decision procedure." }
         ]
       },
       {
@@ -411,7 +411,7 @@ export const categoriesEn: Category[] = [
         name: "Authenticity Check",
         description: "Digital systems must allow for a robust check on the authenticity of evidence and feedback.",
         instruments: [
-          { id: "i30", text: "Periodically evaluate whether procedures for documentation of evidence and feedback are possible (in relation to the application of VRAAKKT criteria, linking evidence to feedback, etc.)." }
+          { id: "i30", text: "Periodically evaluate whether procedures for documentation of evidence and feedback are possible (in relation to the application of VRAAQQT criteria, linking evidence to feedback, etc.)." }
         ]
       },
       {
@@ -440,11 +440,11 @@ export const categoriesEn: Category[] = [
         ]
       },
       {
-        name: "Investigation & Sanctioning",
+        name: "Investigation & Measures",
         description: "After a fraud report, an investigation is initiated that is pedagogically structured, aiming to support the student's learning process rather than to punish.",
         instruments: [
           { id: "i34", text: "Design and implement a methodology for fraud investigation that serves its purpose, and evaluate this periodically." },
-          { id: "i35", text: "Transparently record a sanction ladder, and impose sanctions based on a clear contextual outline and substantiation." }
+          { id: "i35", text: "Transparently record a measures ladder, and take measures based on a clear contextual outline and substantiation." }
         ]
       }
     ]
