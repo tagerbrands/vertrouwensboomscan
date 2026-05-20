@@ -776,6 +776,9 @@ export default function App() {
             <p className="text-lg text-slate-600 dark:text-slate-300">
               {isEnglish ? <>Indicate which instruments you currently use and whether action is required.<br />Indicate your level of confidence per category and add a comment if necessary.</> : <>Geef aan welke instrumenten u hanteert en of actie vereist is (evt. door wie en wanneer).<br />Geef per categorie uw vertrouwen aan en voeg evt. een opmerking toe.</>}
             </p>
+            <p className="text-sm italic text-slate-500 dark:text-slate-400">
+              {isEnglish ? 'Your input is not shared, but stored in your browser.' : 'Uw invoer wordt niet gedeeld, maar in uw browser opgeslagen.'}
+            </p>
             <p className="text-md font-medium text-slate-900 dark:text-white mt-2 print:hidden md:hidden">
               {isEnglish ? 'Tip: in the desktop version you can save the analysis.' : 'Tip: in de desktopversie kun je de analyse opslaan.'}
             </p>
@@ -1135,21 +1138,81 @@ export default function App() {
                 </p>
                 <div className="flex-1 flex flex-col justify-center">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.blindeVlekken}</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.blindeVlekkenDesc}</p>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex flex-col h-full">
+                      <div className="flex justify-between items-start mb-1 gap-2">
+                        <h4 className="font-bold text-slate-800 dark:text-white mb-0 leading-tight">{tLang.blindeVlekken}</h4>
+                        {scatterData.filter(d => d.x < 50 && d.y >= 50).length > 0 && (
+                          <div className="flex flex-wrap gap-1 justify-end shrink-0">
+                            {scatterData.filter(d => d.x < 50 && d.y >= 50).map(cat => (
+                              <div
+                                key={`dot-${cat.id}`}
+                                className="w-3.5 h-3.5 rounded-full cursor-pointer hover:opacity-75 transition-opacity shadow-sm border border-black/10 dark:border-white/10"
+                                style={{ backgroundColor: cat.fill }}
+                                title={cat.name}
+                                onClick={() => scrollToCategory(cat.id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line flex-1">{tLang.blindeVlekkenDesc}</p>
                     </div>
-                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.opOrde}</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.opOrdeDesc}</p>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex flex-col h-full">
+                      <div className="flex justify-between items-start mb-1 gap-2">
+                        <h4 className="font-bold text-slate-800 dark:text-white mb-0 leading-tight">{tLang.opOrde}</h4>
+                        {scatterData.filter(d => d.x >= 50 && d.y >= 50).length > 0 && (
+                          <div className="flex flex-wrap gap-1 justify-end shrink-0">
+                            {scatterData.filter(d => d.x >= 50 && d.y >= 50).map(cat => (
+                              <div
+                                key={`dot-${cat.id}`}
+                                className="w-3.5 h-3.5 rounded-full cursor-pointer hover:opacity-75 transition-opacity shadow-sm border border-black/10 dark:border-white/10"
+                                style={{ backgroundColor: cat.fill }}
+                                title={cat.name}
+                                onClick={() => scrollToCategory(cat.id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line flex-1">{tLang.opOrdeDesc}</p>
                     </div>
-                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.onvoldoende}</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.onvoldoendeDesc}</p>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex flex-col h-full">
+                      <div className="flex justify-between items-start mb-1 gap-2">
+                        <h4 className="font-bold text-slate-800 dark:text-white mb-0 leading-tight">{tLang.onvoldoende}</h4>
+                        {scatterData.filter(d => d.x < 50 && d.y < 50).length > 0 && (
+                          <div className="flex flex-wrap gap-1 justify-end shrink-0">
+                            {scatterData.filter(d => d.x < 50 && d.y < 50).map(cat => (
+                              <div
+                                key={`dot-${cat.id}`}
+                                className="w-3.5 h-3.5 rounded-full cursor-pointer hover:opacity-75 transition-opacity shadow-sm border border-black/10 dark:border-white/10"
+                                style={{ backgroundColor: cat.fill }}
+                                title={cat.name}
+                                onClick={() => scrollToCategory(cat.id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line flex-1">{tLang.onvoldoendeDesc}</p>
                     </div>
-                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-                      <h4 className="font-bold text-slate-800 dark:text-white mb-1">{tLang.grijpIn}</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">{tLang.grijpInDesc}</p>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex flex-col h-full">
+                      <div className="flex justify-between items-start mb-1 gap-2">
+                        <h4 className="font-bold text-slate-800 dark:text-white mb-0 leading-tight">{tLang.grijpIn}</h4>
+                        {scatterData.filter(d => d.x >= 50 && d.y < 50).length > 0 && (
+                          <div className="flex flex-wrap gap-1 justify-end shrink-0">
+                            {scatterData.filter(d => d.x >= 50 && d.y < 50).map(cat => (
+                              <div
+                                key={`dot-${cat.id}`}
+                                className="w-3.5 h-3.5 rounded-full cursor-pointer hover:opacity-75 transition-opacity shadow-sm border border-black/10 dark:border-white/10"
+                                style={{ backgroundColor: cat.fill }}
+                                title={cat.name}
+                                onClick={() => scrollToCategory(cat.id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line flex-1">{tLang.grijpInDesc}</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-300 mt-4">
